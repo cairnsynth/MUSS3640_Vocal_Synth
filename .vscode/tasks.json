@@ -1,0 +1,24 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "faust2api JUCE",
+            "type": "shell",
+            "command": "docker",
+            "args" : [
+                "run",
+                "--rm",
+                "-v",
+                "${fileDirname}:/work",
+                "faust2api",
+                "-juce",
+                "/work/${fileBasename}"],
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "detail" : "Build class and header with JUCE API"
+        }
+    ]
+}
