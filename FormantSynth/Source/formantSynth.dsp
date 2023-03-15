@@ -1,6 +1,14 @@
 import("stdfaust.lib");
 
-inFreq = hslider("[0]freq", 110, 20, 10000, 1);
+gate = button("gate") : ba.toggle;
+inFreq = hslider("freq", 110, 20, 1000, 1);
+vibratoFreq = nentry("vibratoFreq", 2.0, 0.0, 10.0, 0.1);
+vibratoGain = nentry("vibratoGain", 0.2, 0.0, 1.0, 0.01);
+noiseGain = nentry("noiseGain", 0.8, 0.0, 1.0, 0.01);
+noiseColour = hslider("noiseColour", 10000.0, 6000.0, 15000.0, 1.0);
+vocalFry = hslider("vocalFry", 0.1, 0.1, 1.0, 0.01);
+
+
 
 f1Freq = nentry("f1Freq", 800, 20, 20000, 1);
 f2Freq = nentry("f2Freq", 1150, 20, 20000, 1);
@@ -20,6 +28,7 @@ f3BW = nentry("f3BW", 120, 20, 1000, 1);
 f4BW = nentry("f4BW", 130, 20, 1000, 1);
 f5BW = nentry("f5BW", 140, 20, 1000, 1);
 
+
 formant(freq, width, gain) = *(gain_) : fi.bandpass(1, freqLow_, freqHigh_)
 with {
     freqLow_ = freq - (width/2) : si.smoo;
@@ -33,4 +42,13 @@ f3 = formant(f3Freq, f3BW, f3Gain);
 f4 = formant(f4Freq, f4BW, f4Gain);
 f5 = formant(f5Freq, f5BW, f5Gain);
 
-process = os.square(inFreq) <: f1, f2, f3, f4, f5:> _ <: _,_;
+voiceEnv = en.adsr(0.2, 1.0, 0.6, 1.0, gate);
+noiseEnv = en.adsr(0.01, 0.3, 0.0, 0.0, gate);
+
+freq = inFreq + (os.sinwaveform(vibratoFreq)*vibratoGain);
+vibrato = os.osc(vibratoFreq)*vibratoGain;
+voiced = ((os.square(freq+vibrato)*(1.0-vocalFry)) : +((os.square(freq+vibrato) : ba.impulsify)*vocalFry*3.0))*voiceEnv;
+noise = no.noise*noiseGain : fi.bandpass(1, noiseColour - 5000, noiseColour + 5000);
+source = voiced : +(noise*noiseEnv);
+
+process = source <: f1, f2, f3, f4, f5:> _ <: _,_;
