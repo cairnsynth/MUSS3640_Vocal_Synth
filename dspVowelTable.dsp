@@ -62,7 +62,7 @@ vibratoRelease = hslider("vibratoRelease", 0.01, 0.01, 5.0, 0.01);
 //Gain Control
 fofGain = hslider("fofGain", 0.5, 0.0, 1.0, 0.01);
 bpGain = hslider("bpGain", 0.5, 0.0, 1.0, 0.01);
-gain = vslider("gain", 0.5, 0.0, 1.0, 0.01);
+gain = hslider("gain", 0.5, 0.0, 1.0, 0.01);
 
 //Global signals
 nFormants = 5;
@@ -96,14 +96,18 @@ with {
 };
 
 //FOF Formant Bank
-fofBank = par(i, nFormants, fofFormant(i)) :> *(fofGainComp) <: _,_;
+fofBank = par(i, nFormants, fofFormant(i)) :> _ <: _,_;
 
 //FOF Gain Compensation
-fofAmplitude = fofBank : an.abs_envelope_rect(0.1);
-fofGainComp = 10;
+fofAmplitude = fofBank :> abs : an.amp_follower(0.2) : ba.db2linear;
+fofGainComp = 30;
+//fofGainComp = 100;
 
 //FOF Process Block
-fofChain = par(i, nUnison,(fofSource(sourceFreq + ((unisonDetune/nUnison) * i)) <: fofBank : *((1/nUnison)*i), *(1-((1/nUnison)*i)))) :> _,_;
+fofChain = par(i, nUnison,(fofSource(sourceFreq + ((unisonDetune/nUnison) * i)) <: fofBank : *((1/nUnison)*i), *(1-((1/nUnison)*i)))) :> _ <: co.compressor_stereo(5, -30, 0.05, 0.5): *(fofGainComp),*(fofGainComp);
+
+//fofAmplitude = fofBank : abs : an.amp_follower(0.5);
+//fofGainComp = 1.0 / fofAmplitude;
 
 /*BANDPASS*/
 bpSource = os.pulsetrain(sourceFreq, sourcePW) : fi.bandstop(1, 1000, 1500);
@@ -125,5 +129,7 @@ with {
     _bp4 = bpFormant(4);
 };
 
+envelope = abs : max ~ -(1.0/ma.SR) : max(ba.db2linear(-70)) : ba.linear2db;
 //process = fofSource : fofBank*fofGain :> *(gain) <: _,_;
 process = fofChain : *(gain), *(gain) : _,_;
+
