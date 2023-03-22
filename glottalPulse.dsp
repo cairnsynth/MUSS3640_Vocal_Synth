@@ -1,20 +1,25 @@
 import("stdfaust.lib");
 freq = hslider("Frequency", 110, 20, 1000, 1);
 
-alpha0Slide = hslider("a_0", 0.2, 0.01, 2.0, 0.01);
-alpha1Slide = hslider("a_1", 0.19, 0.01, 2.0, 0.01);
+alpha0Slide = hslider("a_0", 0.2, 0.01, 2.0, 0.001);
+alpha1Slide = hslider("a_1", 0.19, 0.01, 2.0, 0.001);
 avSlide = hslider("Av", 1.0, 0.0, 2.0, 0.1);
 t0Slide = hslider("T0", 1.0, 0.01, 2.0, 0.001);
 teSlide = hslider("Te", 1.2, 0.00, 4.0, 0.001);
 
+jitterGainSlide = hslider("Jitter Gain", 0.0, 0.0, 0.1, 0.001);
+jitterFreqSlide = hslider("Jitter Freq", 20, 1, 100, 1);
+
+jitter = os.osc(jitterFreqSlide)*jitterGainSlide;
+
 Av = avSlide;           //Amplitude of voicing
 T0 = t0Slide;          //Glottal time interval
-Tp = alpha0*T0;         //Glottal opening time
-Tc = alpha1*T0;         //Glottal closing time
-Te = Tc + Tp;               //Glottal closed time
+//Tp = alpha0*T0;         //Glottal opening time
+//Tc = alpha1*T0;         //Glottal closing time
+//Te = Tc + Tp;               //Glottal closed time
 
-alpha0 = alpha0Slide;          //Increasing slope
-alpha1 = alpha1Slide;          //Decreasing slope
+alpha0 = alpha0Slide + jitter;          //Increasing slope
+alpha1 = alpha1Slide + jitter;          //Decreasing slope
 
 phasor(freq) = (+(freq/ma.SR) ~ ma.frac);
 
@@ -28,15 +33,27 @@ sinewave = sin(phasor(freq)*2*ma.PI);
 * E. Cataldo, D. Bahiano
 * 
 * <https://www.sciencedirect.com/science/article/pii/S0885230821000322> (pg 3)
+* 
+* Params:
+*   -Av = Amplitude of voicing
+*   -T0 = Glottal time interval
+*   -Te = Glottal closed time
+*   -a0 = Increase slope constant
+*   -a1 = Decrease slope constant
 */
-gPulse(t) = (-gPulse1_(t) - gPulse2_(t)) * part3_(t)
+rosenbergModel(freq, Av, T0, Te, a0, a1) = ba.if(rCond2_(t_), rosenberg1_(-t_), rosenberg2_(-t_)) * rCond3_(t_)
 with {
-    gPulse1_(t) = 0.5*Av*(1-cos((ma.PI*t)/Tp)) * part1_(t);
-    gPulse2_(t) = Av*cos(((ma.PI*(t-Tp))/(2*Tc))) * part2_(t);
-    part1_(t) = 0 < t < Tp;
-    part2_(t) = Tp < t < Te;
-    part3_(t) = (Te < t < T0);
+    t_ = phasor(freq);
+    Tp_ = a0*T0;
+    Tc_ = a1*T0;
+    Te_ = Te;
+    rosenberg1_(t_) = 0.5*Av*(1-cos(ma.PI*t_/Tp_)) * rCond1_(t_);
+    rosenberg2_(t_) = Av*cos(((ma.PI*(t_-Tp_))/(2*Tc_))) * rCond2_(t_);
+    rCond1_(t_) = 0 < t_ < Tp_;
+    rCond2_(t_) = Tp_ < t_ < Te_;
+    rCond3_(t_) = (Te_ < t_ < T0);
 };
 
-process = gPulse(phasor(freq));
+
+process = rosenbergModel(freq, Av, T0, teSlide, alpha0, alpha1) <: _,_;
 

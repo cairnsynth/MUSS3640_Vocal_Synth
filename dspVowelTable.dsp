@@ -104,7 +104,7 @@ fofGainComp = 30;
 //fofGainComp = 100;
 
 //FOF Process Block
-fofChain = par(i, nUnison,(fofSource(sourceFreq + ((unisonDetune/nUnison) * i)) <: fofBank : *((1/nUnison)*i), *(1-((1/nUnison)*i)))) :> _ <: co.compressor_stereo(5, -30, 0.05, 0.5): *(fofGainComp),*(fofGainComp);
+fofChain = par(i, nUnison,(fofSource(sourceFreq + ((unisonDetune/nUnison) * i)) <: fofBank : *((1/nUnison)*i), *(1-((1/nUnison)*i)))) :> _ <: co.compressor_stereo(5, -30, 0.05, 0.5): *(fofGainComp),*(fofGainComp) : *(fofGain),*(fofGain);
 
 //fofAmplitude = fofBank : abs : an.amp_follower(0.5);
 //fofGainComp = 1.0 / fofAmplitude;
