@@ -1,7 +1,21 @@
+################################################################################
+# Praat script to enable the extraction of formant data from given .wav        #
+# files                                                                        #
+#                                                                              #
+# To run from command line:                                                    #
+# your/Praat/installation/folder/Praat.exe --run script/location/get_formants  #
+#	_from_audio.praat [output style]                                           #
+#                                                                              #
+# output style =                                                               #
+# "Averages" : outputs just the average values                                 #
+# "Full"     : outputs all data samples, last row is column average            #
+################################################################################
+
+
 clearinfo
 
 inDir$ = chooseDirectory$: "Select folder of .wav files"
-inDirWav$ = inDir$ + "\*.wav"
+inDirWav$ = inDir$ + "/*.wav"
 wavList = Create Strings as file list: "wavList", inDirWav$
 numFiles = Get number of strings
 if numFiles == 0
@@ -24,7 +38,7 @@ for fileNum from 1 to numFiles
 
 	selectObject: wavList
 	wavFile$ = Get string: fileNum
-	this_sound = Read from file: inDir$ + "\" + wavFile$
+	this_sound = Read from file: inDir$ + "/" + wavFile$
 	Play
 	sound_name$ = selected$("Sound")
 	appendInfoLine: "Current File: ", sound_name$
@@ -77,8 +91,6 @@ for fileNum from 1 to numFiles
 	endfor
 
 	select table
-	#Append row
-	#Append row
 	nRows = Get number of rows
 	nColumns = Get number of columns
 
@@ -138,3 +150,5 @@ endfor
 
 select wavList
 Remove
+
+exitScript: "Formant extraction complete!"
