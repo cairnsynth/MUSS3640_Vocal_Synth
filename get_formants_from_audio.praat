@@ -3,8 +3,8 @@
 # files                                                                        #
 #                                                                              #
 # To run from command line:                                                    #
-# your/Praat/installation/folder/Praat.exe --run script/location/get_formants  #
-#	_from_audio.praat [output style]                                           #
+# your/Praat/installation/folder/Praat.exe --run script/location/              #
+#   get_formants_from_audio.praat [output style]                               #
 #                                                                              #
 # output style =                                                               #
 # "Averages" : outputs just the average values                                 #
