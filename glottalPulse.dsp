@@ -1,5 +1,5 @@
 import("stdfaust.lib");
-freq = hslider("Frequency", 110, 20, 1000, 1);
+inFreq = hslider("Frequency", 110, 20, 1000, 1);
 
 alpha0Slide = hslider("a_0", 0.2, 0.01, 2.0, 0.001);
 alpha1Slide = hslider("a_1", 0.19, 0.01, 2.0, 0.001);
@@ -9,6 +9,14 @@ teSlide = hslider("Te", 1.2, 0.00, 4.0, 0.001);
 
 jitterGainSlide = hslider("Jitter Gain", 0.0, 0.0, 0.1, 0.001);
 jitterFreqSlide = hslider("Jitter Freq", 20, 1, 100, 1);
+
+noiseSlide = hslider("Noise", 0.001, 0.0, 1.0, 0.001);
+noiseColSlide = hslider("Noise Colour", 20000, 20, 24000, 1);
+
+pressureSlide = hslider("Pressure", 1.0, 0.0, 1.0, 0.001);
+
+inharmonicSlide = hslider("Inharmonics", 1.0, 0.0, 5.0, 0.001);
+ihRatioSlide = hslider("Inharmonic Ratio", 1.0, 0.0, 5.0, 0.01);
 
 jitter = os.osc(jitterFreqSlide)*jitterGainSlide;
 
@@ -24,6 +32,8 @@ alpha1 = alpha1Slide + jitter;          //Decreasing slope
 phasor(freq) = (+(freq/ma.SR) ~ ma.frac);
 
 sinewave = sin(phasor(freq)*2*ma.PI);
+
+freq = inFreq + (os.osc(inFreq*ihRatioSlide)*inharmonicSlide) + (os.osc(inFreq*ihRatioSlide*1.5)*inharmonicSlide);
 
 /*
 * REF:
@@ -43,7 +53,7 @@ sinewave = sin(phasor(freq)*2*ma.PI);
 */
 rosenbergModel(freq, Av, T0, Te, a0, a1) = ba.if(rCond2_(t_), rosenberg1_(-t_), rosenberg2_(-t_)) * rCond3_(t_)
 with {
-    t_ = phasor(freq);
+    t_ = (phasor(freq)*pressureSlide) + (no.noise*noiseSlide : fi.highpass(1, noiseColSlide));
     Tp_ = a0*T0;
     Tc_ = a1*T0;
     Te_ = Te;
