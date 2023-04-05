@@ -1,7 +1,9 @@
+declare options "[nvoices:8]";
+
 import("stdfaust.lib");
 
-/* INPUT/API */
-gate = button("gate") : ba.toggle;
+/*INPUT/API*/
+gate = button("gate");
 
 //Formant Data
 f1Freq = nentry("f1Freq", 800, 20, 20000, 1);
@@ -34,7 +36,7 @@ voiceRelease = vslider("t:voice/h:envelope/voiceRelease", 1.0, 0.01, 5.0, 0.01);
 bpSourcePW = vslider("t:voice/h:source/bpSourcePW", 0.1, 0.001, 0.999, 0.001);
 bpSourceSelect = vslider("t:voice/h:source/bpSourceSelect", 0, 0, 2, 1);
 glideTime = vslider("t:voice/h:source/glideTime", 0.0, 0.0, 2.0, 0.001);
-frequency = vslider("t:voice/h:source/frequency", 100, 20, 1046, 0.1) : si.smooth(ba.tau2pole(glideTime));
+frequency = vslider("freq", 100, 20, 1046, 0.1) : si.smooth(ba.tau2pole(glideTime));
 noiseSlide = vslider("t:voice/h:source/noise", 0.001, 0.0, 1.0, 0.001);
 t0Slide = vslider("t:voice/h:source/T0", 0.915, 0.01, 1.0, 0.001);
 teSlide = vslider("t:voice/h:source/Te", 0.857, 0.00, 4.0, 0.001);
@@ -61,11 +63,11 @@ vibratoRelease = vslider("t:voice/h:vibrato/vibratoRelease", 0.01, 0.01, 5.0, 0.
 fofGain = vslider("t:voice/h:mixer/fofGain", 0.5, 0.0, 1.0, 0.01);
 bpGain = vslider("t:voice/h:mixer/bpGain", 0.5, 0.0, 1.0, 0.01);
 fricativeGain = vslider("t:voice/h:mixer/fricativeGain", 0.5, 0.0, 1.0, 0.01);
-gain = vslider("t:voice/h:mixer/gain", 0.5, 0.0, 1.0, 0.01);
+gain = vslider("gain", 0.5, 0.0, 1.0, 0.01);
 
 //unisonDetune = hslider("unisonDetune", 0.0, 0.0, 2.0, 0.01);
 
-/* GLOBAL SIGNALS */
+//Global signals
 nFormants = 5;
 nUnison = 4;
 unisonDetune = 0;
@@ -73,14 +75,14 @@ voiceEffort = pm.vocalEffort(sourceFreq, gender);
 index = (voiceType * nFormants) + vowel : si.smoo;
 sourceFreq = frequency + vibratoSignal;
 
-/* VOICE ENVLOPE */
+/*ENVLOPE*/
 voiceEnvelope = en.adsr(voiceAttack, voiceDecay, voiceSustain, voiceRelease, gate);
 
-/* VIBRATO */
+/*VIBRATO*/
 vibratoSignal = os.osc(vibratoFreq)*vibratoEnvelope;
 vibratoEnvelope = en.asr(vibratoAttack, vibratoSustain, vibratoRelease, gate);
 
-/* FOF */
+/*FOF*/
 fofSource(freq_) = os.lf_imptrain(freq_);
 
 //FOF Formant Object
@@ -109,7 +111,7 @@ fofGainComp = 50;
 //FOF Process Block
 fofChain = par(i, nUnison,(fofSource(sourceFreq + ((unisonDetune/nUnison) * i)) <: fofBank : *((1/nUnison)*i), *(1-((1/nUnison)*i)))) :> co.compressor_stereo(5, -30, 0.05, 0.5): *(fofGainComp),*(fofGainComp) : *(voiceEnvelope), *(voiceEnvelope) : *(fofGain),*(fofGain);
 
-/* BANDPASS */
+/*BANDPASS*/
 bpSource(freq_) = _square, _saw, _model : select3(bpSourceSelect) :> _
 with {
     _square = os.pulsetrain(freq_, bpSourcePW);
@@ -136,13 +138,14 @@ with {
 
 bpChain = par(i, nUnison,(bpSource(sourceFreq + ((unisonDetune/nUnison) * i)) <: bpBank : *((1/nUnison)*i), *(1-((1/nUnison)*i)))) :> co.compressor_stereo(5, -30, 0.05, 0.5) : *(10), *(10) : *(voiceEnvelope), *(voiceEnvelope) : *(bpGain), *(bpGain);
 
-/* FRICATIVE */
+/*FRICATIVE*/
 fricativeSource = no.noise : fi.bandpass(1, noiseColourLow, noiseColourHigh);
 fricativeEnvelope = en.adsr(noiseAttack, noiseDecay, noiseSustain, noiseRelease, gate);
 
 fricativeChain = fricativeSource : bpBank <: *(fricativeGain)*(fricativeEnvelope), *(fricativeGain)*(fricativeEnvelope);
 
-/* GLOTTAL MODEL */
+/* Glottal Model */
+
 phasor(freq) = (+(freq/ma.SR) ~ ma.frac);
 
 rosenbergModel(freq, Av, T0, Te, a0, a1) = ba.if(rCond2_(t_), rosenberg1_(-t_), rosenberg2_(-t_)) * rCond3_(t_)
@@ -158,5 +161,4 @@ with {
     rCond3_(t_) = (Te_ < t_ < T0);
 };
 
-/* MAIN PROCESS BLOCK */
 process = bpChain, fofChain, fricativeChain :> *(gain), *(gain) : _,_;

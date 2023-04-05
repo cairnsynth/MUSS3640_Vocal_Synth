@@ -9,6 +9,9 @@
 #pragma once
 
 #include <JuceHeader.h>
+#include "DspFaust.h"
+
+
 
 //==============================================================================
 /**
@@ -57,9 +60,20 @@ public:
     void setStateInformation (const void* data, int sizeInBytes) override;
 
     //==============================================================================
-    
+    void keyOn(int key, int velocity);
+    void keyOff(int key);
+
+    void setBpSourceWave(int value);
+    void setBpSourcePwValue(float pw);
+
+    void setFofGain(float gain);
+    void setBpGain(float gain);
+    void FormantSynthAudioProcessor::setFricativeGain(float gain);
+
+    float getCpuLoad();
 
 private:
+    DspFaust dsp;  // Main DSP object
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (FormantSynthAudioProcessor)
