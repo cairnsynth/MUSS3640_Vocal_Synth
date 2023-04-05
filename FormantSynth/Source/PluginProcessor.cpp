@@ -98,7 +98,6 @@ void FormantSynthAudioProcessor::changeProgramName (int index, const juce::Strin
 //==============================================================================
 void FormantSynthAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
-    
 }
 
 void FormantSynthAudioProcessor::releaseResources()
@@ -184,12 +183,27 @@ void FormantSynthAudioProcessor::keyOff(int key)
 void FormantSynthAudioProcessor::setBpSourceWave(int value)
 {
     dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/source/bpSourceSelect", value-1);
-    DBG(value);
 }
 
-void FormantSynthAudioProcessor::setBpSourcePwValue(float pw)
+void FormantSynthAudioProcessor::setBpSourcePw(float pw)
 {
     dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/source/bpSourcePW", pw);
+}
+
+void FormantSynthAudioProcessor::setBpSourcePressure(float pressure) {
+    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/source/Pressure", pressure);
+}
+
+void FormantSynthAudioProcessor::setBpSourceT0(float t0) {
+    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/source/T0", t0);
+}
+
+void FormantSynthAudioProcessor::setBpSourceTe(float te) {
+    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/source/Te", te);
+}
+
+void FormantSynthAudioProcessor::setBpSourceNoise(float noise) {
+    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/source/noise", noise);
 }
 
 void FormantSynthAudioProcessor::setFofGain(float gain)

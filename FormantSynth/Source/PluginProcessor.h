@@ -64,11 +64,15 @@ public:
     void keyOff(int key);
 
     void setBpSourceWave(int value);
-    void setBpSourcePwValue(float pw);
+    void setBpSourcePw(float pw);
+    void setBpSourcePressure(float pressure);
+    void setBpSourceT0(float t0);
+    void setBpSourceTe(float te);
+    void setBpSourceNoise(float noise);
 
     void setFofGain(float gain);
     void setBpGain(float gain);
-    void FormantSynthAudioProcessor::setFricativeGain(float gain);
+    void setFricativeGain(float gain);
 
     float getCpuLoad();
 

@@ -39,18 +39,34 @@ private:
     juce::MidiKeyboardState keyboardState;
     juce::MidiKeyboardComponent keyboardComponent;
 
-    //GUI Objects
-
+    /*GUI Objects*/
+    // Mixer
     juce::Slider fofGainSlider;
     juce::Label fofGainLabel;
     juce::Slider bpGainSlider;
     juce::Label bpGainLabel;
     juce::Slider fricativeGainSlider;
-    juce::Label fricativeGainLabel;
+    juce::Label fricativeGainLabel; 
 
+    // Source
     juce::ComboBox bpSourceWaveBox;
     juce::Slider bpSourcePwSlider;
     juce::Label bpSourcePwLabel;
+    juce::Slider bpSourcePressureSlider;
+    juce::Label bpSourcePressureLabel;
+    juce::Slider bpSourceT0Slider;
+    juce::Label bpSourceT0Label;
+    juce::Slider bpSourceTeSlider;
+    juce::Label bpSourceTeLabel;
+    juce::Slider bpSourceNoiseSlider;
+    juce::Label bpSourceNoiseLabel;
+
+    //Filter
+
+    // Envelopes
+
+    // Graphics
+    juce::TextButton guiGraphic;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (FormantSynthAudioProcessorEditor)
 };
