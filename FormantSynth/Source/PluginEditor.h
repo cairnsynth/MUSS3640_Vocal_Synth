@@ -11,8 +11,6 @@
 #include <JuceHeader.h>
 #include "PluginProcessor.h"
 
-
-
 //==============================================================================
 /**
 */
@@ -27,10 +25,8 @@ public:
     void resized() override;
 
 private:
-    juce::Slider vowelSlider;
-    juce::Label vowelLabel;
-    juce::Slider freqSlider;
-
+    // This reference is provided as a quick way for your editor to
+    // access the processor object that created it.
     FormantSynthAudioProcessor& audioProcessor;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (FormantSynthAudioProcessorEditor)

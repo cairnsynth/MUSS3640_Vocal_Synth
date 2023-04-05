@@ -15,29 +15,7 @@ FormantSynthAudioProcessorEditor::FormantSynthAudioProcessorEditor (FormantSynth
 {
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
-    setSize (800, 600);
-
-    addAndMakeVisible(vowelSlider);
-    vowelSlider.setRange(0, 4);
-    vowelSlider.setValue(0);
-    vowelSlider.setNumDecimalPlacesToDisplay(0);
-    vowelSlider.onValueChange = [this] {
-        audioProcessor.setFormantFreqs(vowelSlider.getValue());
-        audioProcessor.setFormantGains(vowelSlider.getValue());
-        audioProcessor.setFormantBandwidths(vowelSlider.getValue());
-    };
-
-    addAndMakeVisible(vowelLabel);
-    vowelLabel.setText("Vowel", juce::dontSendNotification);
-    vowelLabel.attachToComponent(&vowelSlider, true);
-
-    addAndMakeVisible(freqSlider);
-    freqSlider.setRange(20.0, 20000.0);
-    freqSlider.setNumDecimalPlacesToDisplay(0);
-    freqSlider.setValue(220.0);
-    freqSlider.onValueChange = [this] {
-        audioProcessor.setInFreq(freqSlider.getValue());
-    };
+    setSize (400, 300);
 }
 
 FormantSynthAudioProcessorEditor::~FormantSynthAudioProcessorEditor()
@@ -47,11 +25,19 @@ FormantSynthAudioProcessorEditor::~FormantSynthAudioProcessorEditor()
 //==============================================================================
 void FormantSynthAudioProcessorEditor::paint (juce::Graphics& g)
 {
+    // (Our component is opaque, so we must completely fill the background with a solid colour)
+    g.fillAll (juce::Colours::black);
+
+    g.setColour (juce::Colours::white);
+    g.setFont (15.0f);
+
+    juce::String tmpStr = juce::String("hello");
+
+    g.drawFittedText(tmpStr, getLocalBounds(), juce::Justification::centred, 1);
 }
 
 void FormantSynthAudioProcessorEditor::resized()
 {
-    const int sliderLeft = 80;
-    vowelSlider.setBounds(sliderLeft, 100, getWidth() - sliderLeft - 20, 20);
-    freqSlider.setBounds(sliderLeft, 150, getWidth() - sliderLeft - 20, 20);
+    // This is generally where you'll want to lay out the positions of any
+    // subcomponents in your editor..
 }

@@ -8,6 +8,9 @@
 
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
+#include <fstream>
+#include "json.hpp"
+using json = nlohmann::json;
 
 //==============================================================================
 FormantSynthAudioProcessor::FormantSynthAudioProcessor()
@@ -22,12 +25,10 @@ FormantSynthAudioProcessor::FormantSynthAudioProcessor()
                        )
 #endif
 {
-    dspFaust.start();
 }
 
 FormantSynthAudioProcessor::~FormantSynthAudioProcessor()
 {
-    dspFaust.stop();
 }
 
 //==============================================================================
@@ -97,7 +98,6 @@ void FormantSynthAudioProcessor::prepareToPlay (double sampleRate, int samplesPe
 {
     // Use this method as the place to do any pre-playback
     // initialisation that you need..
-    FormantSynthAudioProcessor::setFormantFreqs(2);
 }
 
 void FormantSynthAudioProcessor::releaseResources()
@@ -134,6 +134,31 @@ bool FormantSynthAudioProcessor::isBusesLayoutSupported (const BusesLayout& layo
 
 void FormantSynthAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
+    juce::ScopedNoDenormals noDenormals;
+    auto totalNumInputChannels  = getTotalNumInputChannels();
+    auto totalNumOutputChannels = getTotalNumOutputChannels();
+
+    // In case we have more outputs than inputs, this code clears any output
+    // channels that didn't contain input data, (because these aren't
+    // guaranteed to be empty - they may contain garbage).
+    // This is here to avoid people getting screaming feedback
+    // when they first compile a plugin, but obviously you don't need to keep
+    // this code if your algorithm always overwrites all the output channels.
+    for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
+        buffer.clear (i, 0, buffer.getNumSamples());
+
+    // This is the place where you'd normally do the guts of your plugin's
+    // audio processing...
+    // Make sure to reset the state if your inner loop is processing
+    // the samples and the outer loop is handling the channels.
+    // Alternatively, you can process the samples with the channels
+    // interleaved by keeping the same state.
+    for (int channel = 0; channel < totalNumInputChannels; ++channel)
+    {
+        auto* channelData = buffer.getWritePointer (channel);
+
+        // ..do something to the data...
+    }
 }
 
 //==============================================================================
@@ -168,39 +193,5 @@ juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
     return new FormantSynthAudioProcessor();
 }
 
-float FormantSynthAudioProcessor::dbToGain(int dB)
-{
-    return pow(10.0, (float)dB / 20.0);
-}
-
-void FormantSynthAudioProcessor::setFormantFreqs(int vowel)
-{
-    dspFaust.setParamValue("f1Freq", formantFreqData[vowel][0]);
-    dspFaust.setParamValue("f2Freq", formantFreqData[vowel][1]);
-    dspFaust.setParamValue("f3Freq", formantFreqData[vowel][2]);
-    dspFaust.setParamValue("f4Freq", formantFreqData[vowel][3]);
-    dspFaust.setParamValue("f5Freq", formantFreqData[vowel][4]);
-}
-
-void FormantSynthAudioProcessor::setFormantGains(int vowel)
-{
-    dspFaust.setParamValue("f1Gain", dbToGain(formantGainData[vowel][0]));
-    dspFaust.setParamValue("f2Gain", dbToGain(formantGainData[vowel][1]));
-    dspFaust.setParamValue("f3Gain", dbToGain(formantGainData[vowel][2]));
-    dspFaust.setParamValue("f4Gain", dbToGain(formantGainData[vowel][3]));
-    dspFaust.setParamValue("f5Gain", dbToGain(formantGainData[vowel][4]));
-}
-
-void FormantSynthAudioProcessor::setFormantBandwidths(int vowel)
-{
-    dspFaust.setParamValue("f1BW", formantBWData[vowel][0]);
-    dspFaust.setParamValue("f2BW", formantBWData[vowel][1]);
-    dspFaust.setParamValue("f3BW", formantBWData[vowel][2]);
-    dspFaust.setParamValue("f4BW", formantBWData[vowel][3]);
-    dspFaust.setParamValue("f5BW", formantBWData[vowel][4]);
-}
-
-void FormantSynthAudioProcessor::setInFreq(int freq)
-{
-    dspFaust.setParamValue("freq", freq);
-}
+//==============================================================================
+//End JUCE Code
