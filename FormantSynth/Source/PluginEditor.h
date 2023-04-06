@@ -49,6 +49,7 @@ private:
     juce::Label fricativeGainLabel; 
 
     // Source
+    juce::Label bpSourceLabel;
     juce::ComboBox bpSourceWaveBox;
     juce::Slider bpSourcePwSlider;
     juce::Label bpSourcePwLabel;
@@ -60,10 +61,31 @@ private:
     juce::Label bpSourceTeLabel;
     juce::Slider bpSourceNoiseSlider;
     juce::Label bpSourceNoiseLabel;
+    juce::Label fricativeSourceLabel;
+    juce::Slider fricativeColourSlider;
 
     //Filter
 
     // Envelopes
+    juce::Label voiceEnvelopeLabel;
+    juce::Slider voiceAttackSlider;
+    juce::Label voiceAttackLabel;
+    juce::Slider voiceDecaySlider;
+    juce::Label voiceDecayLabel;
+    juce::Slider voiceSustainSlider;
+    juce::Label voiceSustainLabel;
+    juce::Slider voiceReleaseSlider;
+    juce::Label voiceReleaseLabel;
+
+    juce::Label fricativeEnvelopeLabel;
+    juce::Slider fricativeAttackSlider;
+    juce::Label fricativeAttackLabel;
+    juce::Slider fricativeDecaySlider;
+    juce::Label fricativeDecayLabel;
+    juce::Slider fricativeSustainSlider;
+    juce::Label fricativeSustainLabel;
+    juce::Slider fricativeReleaseSlider;
+    juce::Label fricativeReleaseLabel;
 
     // Graphics
     juce::TextButton guiGraphic;

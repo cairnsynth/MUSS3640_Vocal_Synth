@@ -179,31 +179,70 @@ void FormantSynthAudioProcessor::keyOff(int key)
 {
     dsp.keyOff(key);
 }
-
+/*DSP Setters*/
 void FormantSynthAudioProcessor::setBpSourceWave(int value)
 {
     dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/source/bpSourceSelect", value-1);
 }
-
 void FormantSynthAudioProcessor::setBpSourcePw(float pw)
 {
     dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/source/bpSourcePW", pw);
 }
-
-void FormantSynthAudioProcessor::setBpSourcePressure(float pressure) {
+void FormantSynthAudioProcessor::setBpSourcePressure(float pressure)
+{
     dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/source/Pressure", pressure);
 }
-
-void FormantSynthAudioProcessor::setBpSourceT0(float t0) {
+void FormantSynthAudioProcessor::setBpSourceT0(float t0)
+{
     dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/source/T0", t0);
 }
-
-void FormantSynthAudioProcessor::setBpSourceTe(float te) {
+void FormantSynthAudioProcessor::setBpSourceTe(float te)
+{
     dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/source/Te", te);
 }
-
-void FormantSynthAudioProcessor::setBpSourceNoise(float noise) {
+void FormantSynthAudioProcessor::setBpSourceNoise(float noise)
+{
     dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/source/noise", noise);
+}
+
+void FormantSynthAudioProcessor::setFricativeColour(float min, float max)
+{
+    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/fricative/noiseColourLow", min);
+    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/fricative/noiseColourHigh", max);
+}
+
+void FormantSynthAudioProcessor::setVoiceAttack(float attack)
+{
+    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/envelope/voiceAttack", attack);
+}
+void FormantSynthAudioProcessor::setVoiceDecay(float decay)
+{
+    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/envelope/voiceDecay", decay);
+}
+void FormantSynthAudioProcessor::setVoiceSustain(float sustain)
+{
+    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/envelope/voiceSustain", sustain);
+}
+void FormantSynthAudioProcessor::setVoiceRelease(float release)
+{
+    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/envelope/voiceRelease", release);
+}
+
+void FormantSynthAudioProcessor::setFricativeAttack(float attack)
+{
+    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/fricative/noiseAttack", attack);
+}
+void FormantSynthAudioProcessor::setFricativeDecay(float decay)
+{
+    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/fricative/noiseDecay", decay);
+}
+void FormantSynthAudioProcessor::setFricativeSustain(float sustain)
+{
+    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/fricative/noiseSustain", sustain);
+}
+void FormantSynthAudioProcessor::setFricativeRelease(float release)
+{
+    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/fricative/noiseRelease", release);
 }
 
 void FormantSynthAudioProcessor::setFofGain(float gain)

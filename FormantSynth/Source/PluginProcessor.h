@@ -70,6 +70,18 @@ public:
     void setBpSourceTe(float te);
     void setBpSourceNoise(float noise);
 
+    void setFricativeColour(float min, float max);
+
+    void setVoiceAttack(float attack);
+    void setVoiceDecay(float decay);
+    void setVoiceSustain(float sustain);
+    void setVoiceRelease(float release);
+
+    void setFricativeAttack(float attack);
+    void setFricativeDecay(float decay);
+    void setFricativeSustain(float sustain);
+    void setFricativeRelease(float release);
+
     void setFofGain(float gain);
     void setBpGain(float gain);
     void setFricativeGain(float gain);
