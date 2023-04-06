@@ -82,6 +82,11 @@ public:
     void setFricativeSustain(float sustain);
     void setFricativeRelease(float release);
 
+    void setVibratoFrequency(float frequency);
+    void setVibratoAttack(float attack);
+    void setVibratoSustain(float sustain);
+    void setVibratoRelease(float release);
+
     void setFofGain(float gain);
     void setBpGain(float gain);
     void setFricativeGain(float gain);

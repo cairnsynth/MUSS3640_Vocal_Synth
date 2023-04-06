@@ -245,6 +245,23 @@ void FormantSynthAudioProcessor::setFricativeRelease(float release)
     dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/fricative/noiseRelease", release);
 }
 
+void FormantSynthAudioProcessor::setVibratoFrequency(float frequency)
+{
+    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/vibrato/vibratoFreq", frequency);
+}
+void FormantSynthAudioProcessor::setVibratoAttack(float attack)
+{
+    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/vibrato/vibratoAttack", attack);
+}
+void FormantSynthAudioProcessor::setVibratoSustain(float sustain)
+{
+    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/vibrato/vibratoSustain", sustain);
+}
+void FormantSynthAudioProcessor::setVibratoRelease(float release)
+{
+    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/vibrato/vibratoRelease", release);
+}
+
 void FormantSynthAudioProcessor::setFofGain(float gain)
 {
     dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/mixer/fofGain", gain);

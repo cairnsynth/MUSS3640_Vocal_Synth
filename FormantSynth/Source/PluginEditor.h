@@ -40,6 +40,16 @@ private:
     juce::MidiKeyboardComponent keyboardComponent;
 
     /*GUI Objects*/
+    // Colouring
+    juce::Colour sliderTrackFore = juce::Colour(0xFFD0D0D0);
+
+    juce::LookAndFeel_V4 textLookAndFeel;
+    juce::LookAndFeel_V4 windowLookAndFeel;
+    juce::LookAndFeel_V4 sourceLookAndFeel;
+    juce::LookAndFeel_V4 fricativeLookAndFeel;
+    juce::LookAndFeel_V4 filterLookAndFeel;
+    juce::LookAndFeel_V4 vibratoLookAndFeel;
+    juce::LookAndFeel_V4 mixerLookAndFeel;
     // Mixer
     juce::Slider fofGainSlider;
     juce::Label fofGainLabel;
@@ -64,7 +74,7 @@ private:
     juce::Label fricativeSourceLabel;
     juce::Slider fricativeColourSlider;
 
-    //Filter
+    // Filter
 
     // Envelopes
     juce::Label voiceEnvelopeLabel;
@@ -87,8 +97,24 @@ private:
     juce::Slider fricativeReleaseSlider;
     juce::Label fricativeReleaseLabel;
 
+    // Vibrato
+    juce::Label vibratoLabel;
+    juce::Slider vibratoFrequencySlider;
+    juce::Label vibratoFrequencyLabel;
+    juce::Slider vibratoAttackSlider;
+    juce::Label vibratoAttackLabel;
+    juce::Slider vibratoSustainSlider;
+    juce::Label vibratoSustainLabel;
+    juce::Slider vibratoReleaseSlider;
+    juce::Label vibratoReleaseLabel;
+
     // Graphics
-    juce::TextButton guiGraphic;
+    juce::TextButton headerWindow;
+    juce::TextButton sourceWindow;
+    juce::TextButton filterWindow;
+    juce::TextButton vibratoWindow;
+    juce::TextButton envelopeWindow;
+    juce::TextButton mixerWindow;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (FormantSynthAudioProcessorEditor)
 };
