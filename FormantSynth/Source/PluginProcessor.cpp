@@ -1,28 +1,18 @@
-/*
-  ==============================================================================
-
-    This file contains the basic framework code for a JUCE plugin processor.
-
-  ==============================================================================
-*/
-
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
-#include <fstream>
-#include "json.hpp"
-using json = nlohmann::json;
 
 //==============================================================================
 FormantSynthAudioProcessor::FormantSynthAudioProcessor()
 #ifndef JucePlugin_PreferredChannelConfigurations
-     : AudioProcessor (BusesProperties()
-                     #if ! JucePlugin_IsMidiEffect
-                      #if ! JucePlugin_IsSynth
-                       .withInput  ("Input",  juce::AudioChannelSet::stereo(), true)
-                      #endif
-                       .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
-                     #endif
-                       )
+    : AudioProcessor(BusesProperties()
+        #if ! JucePlugin_IsMidiEffect
+        #if ! JucePlugin_IsSynth
+                .withInput("Input", juce::AudioChannelSet::stereo(), true)
+        #endif
+                .withOutput("Output", juce::AudioChannelSet::stereo(), true)
+        #endif
+            ),
+apvts(*this, nullptr, "PARAMETERS", createParameterLayout())
 #endif
 {
     dsp.start();
@@ -34,6 +24,65 @@ FormantSynthAudioProcessor::~FormantSynthAudioProcessor()
 }
 
 //==============================================================================
+
+juce::AudioProcessorValueTreeState::ParameterLayout FormantSynthAudioProcessor::createParameterLayout()
+{
+    std::vector<std::unique_ptr<juce::RangedAudioParameter>> params;
+    // Source parameter creation
+    auto sourceWaveParam = std::make_unique<juce::AudioParameterInt>(SOURCE_WAVE_ID, "Source Waveform", 1, 3, 1);
+    params.push_back(std::move(sourceWaveParam));
+    auto sourcePwParam = std::make_unique<juce::AudioParameterFloat>(SOURCE_PW_ID, "Source Wave Pulsewidth", 0.0f, 1.0f, 0.25f);
+    params.push_back(std::move(sourcePwParam));
+    auto sourcePressureParam = std::make_unique<juce::AudioParameterFloat>(SOURCE_PRESSURE_ID, "Source Pressure", 0.0f, 1.0f, 1.0f);
+    params.push_back(std::move(sourcePressureParam));
+    auto sourceT0Param = std::make_unique<juce::AudioParameterFloat>(SOURCE_T0_ID, "Source T0 Value", 0.0f, 1.0f, 0.944f);
+    params.push_back(std::move(sourceT0Param));
+    auto sourceTeParam = std::make_unique<juce::AudioParameterFloat>(SOURCE_TE_ID, "Source Te Value", 0.0f, 1.0f, 0.223f);
+    params.push_back(std::move(sourceTeParam));
+    auto sourceNoiseParam = std::make_unique<juce::AudioParameterFloat>(SOURCE_NOISE_ID, "Source Noise Gain", 0.0f, 1.0f, 0.0f);
+    params.push_back(std::move(sourceNoiseParam));
+    auto monoParam = std::make_unique<juce::AudioParameterBool>(MONO_ID, "Mono/Poly", true);
+    params.push_back(std::move(monoParam));
+    // Filter parameter creation
+
+    // Vibrato parameter creation
+    auto vibratoFreqParam = std::make_unique<juce::AudioParameterFloat>(VIBRATO_FREQUENCY_ID, "Vibrato Frequency", 0.0f, 8.0f, 5.0f);
+    params.push_back(std::move(vibratoFreqParam));
+    auto vibratoAttackParam = std::make_unique<juce::AudioParameterFloat>(VIBRATO_ATTACK_ID, "Vibrato Attack", 0.0f, 4.0f, 0.5f);
+    params.push_back(std::move(vibratoAttackParam));
+    auto vibratoSustainParam = std::make_unique<juce::AudioParameterFloat>(VIBRATO_SUSTAIN_ID, "Vibrato Sustain", 0.0f, 1.0f, 1.0f);
+    params.push_back(std::move(vibratoSustainParam));
+    auto vibratoReleaseParam = std::make_unique<juce::AudioParameterFloat>(VIBRATO_RELEASE_ID, "Vibrato Release", 0.0f, 5.0f, 1.0f);
+    params.push_back(std::move(vibratoReleaseParam));
+    // Envlope parameter creation
+    auto voiceAttackParam = std::make_unique<juce::AudioParameterFloat>(VOICE_ATTACK_ID, "Voice Envelope Attack", 0.0f, 4.0f, 0.01f);
+    params.push_back(std::move(voiceAttackParam));
+    auto voiceDecayParam = std::make_unique<juce::AudioParameterFloat>(VOICE_DECAY_ID, "Voice Envelope Decay", 0.0f, 4.0f, 0.5f);
+    params.push_back(std::move(voiceDecayParam));
+    auto voiceSustainParam = std::make_unique<juce::AudioParameterFloat>(VOICE_SUSTAIN_ID, "Voice Envelope Sustain", 0.0f, 1.0f, 1.0f);
+    params.push_back(std::move(voiceSustainParam));
+    auto voiceReleaseParam = std::make_unique<juce::AudioParameterFloat>(VOICE_RELEASE_ID, "Voice Envelope Release", 0.0f, 5.0f, 1.0f);
+    params.push_back(std::move(voiceReleaseParam));
+
+    auto fricativeAttackParam = std::make_unique<juce::AudioParameterFloat>(FRICA_ATTACK_ID, "Fricative Envelope Attack", 0.0f, 4.0f, 0.01f);
+    params.push_back(std::move(fricativeAttackParam));
+    auto fricativeDecayParam = std::make_unique<juce::AudioParameterFloat>(FRICA_DECAY_ID, "Fricative Envelope Decay", 0.0f, 4.0f, 0.5f);
+    params.push_back(std::move(fricativeDecayParam));
+    auto fricativeSustainParam = std::make_unique<juce::AudioParameterFloat>(FRICA_SUSTAIN_ID, "Fricative Envelope Sustain", 0.0f, 1.0f, 1.0f);
+    params.push_back(std::move(fricativeSustainParam));
+    auto fricativeReleaseParam = std::make_unique<juce::AudioParameterFloat>(FRICA_RELEASE_ID, "Frivative Envelope Release", 0.0f, 5.0f, 1.0f);
+    params.push_back(std::move(fricativeReleaseParam));
+    // Mixer parameter creation
+    auto fofGainParam = std::make_unique<juce::AudioParameterFloat>(FOF_GAIN_ID, "FOF Model Gain", 0.0f, 1.0f, 1.0f);
+    params.push_back(std::move(fofGainParam));
+    auto bpGainParam = std::make_unique<juce::AudioParameterFloat>(BP_GAIN_ID, "Bandpass Model Gain", 0.0f, 1.0f, 1.0f);
+    params.push_back(std::move(bpGainParam));
+    auto fricativeGainParam = std::make_unique<juce::AudioParameterFloat>(FRICA_GAIN_ID, "Fricative Gain", 0.0f, 1.0f, 1.0f);
+    params.push_back(std::move(fricativeGainParam));
+
+    return { params.begin(), params.end() };
+}
+
 const juce::String FormantSynthAudioProcessor::getName() const
 {
     return JucePlugin_Name;
@@ -134,6 +183,34 @@ bool FormantSynthAudioProcessor::isBusesLayoutSupported (const BusesLayout& layo
 
 void FormantSynthAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
+    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/source/bpSourceSelect", *apvts.getRawParameterValue(SOURCE_WAVE_ID) - 1);
+    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/source/bpSourcePW", *apvts.getRawParameterValue(SOURCE_PW_ID));
+    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/source/Pressure", *apvts.getRawParameterValue(SOURCE_PRESSURE_ID));
+    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/source/T0", *apvts.getRawParameterValue(SOURCE_T0_ID));
+    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/source/Te", *apvts.getRawParameterValue(SOURCE_TE_ID));
+    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/source/noise", *apvts.getRawParameterValue(SOURCE_NOISE_ID));
+
+    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/vibrato/vibratoFreq", *apvts.getRawParameterValue(VIBRATO_FREQUENCY_ID));
+    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/vibrato/vibratoAttack", *apvts.getRawParameterValue(VIBRATO_ATTACK_ID));
+    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/vibrato/vibratoSustain", *apvts.getRawParameterValue(VIBRATO_SUSTAIN_ID));
+    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/vibrato/vibratoRelease", *apvts.getRawParameterValue(VIBRATO_RELEASE_ID));
+
+    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/envelope/voiceAttack", *apvts.getRawParameterValue(VOICE_ATTACK_ID));
+    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/envelope/voiceDecay", *apvts.getRawParameterValue(VOICE_DECAY_ID));
+    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/envelope/voiceSustain", *apvts.getRawParameterValue(VOICE_SUSTAIN_ID));
+    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/envelope/voiceRelease", *apvts.getRawParameterValue(VOICE_RELEASE_ID));
+
+    //dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/fricative/noiseColourHigh", *apvts.getRawParameterValue(FRICA_HIGHCUT_ID));
+    //dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/fricative/noiseColourLow", *apvts.getRawParameterValue(FRICA_LOWCUT_ID));
+    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/fricative/noiseAttack", *apvts.getRawParameterValue(FRICA_ATTACK_ID));
+    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/fricative/noiseDecay", *apvts.getRawParameterValue(FRICA_DECAY_ID));
+    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/fricative/noiseSustain", *apvts.getRawParameterValue(FRICA_SUSTAIN_ID));
+    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/fricative/noiseRelease", *apvts.getRawParameterValue(FRICA_RELEASE_ID));
+
+    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/mixer/fofGain", *apvts.getRawParameterValue(FOF_GAIN_ID));
+    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/mixer/bpGain", *apvts.getRawParameterValue(BP_GAIN_ID));
+    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/mixer/fricativeGain", *apvts.getRawParameterValue(FRICA_GAIN_ID));
+    
 }
 
 //==============================================================================
@@ -172,12 +249,31 @@ juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 //End JUCE Code
 void FormantSynthAudioProcessor::keyOn(int key, int velocity)
 {
-    uintptr_t voiceAddress = dsp.keyOn(key, velocity);
+    if (*apvts.getRawParameterValue(MONO_ID)) {
+        dsp.keyOn(key, velocity);
+        DBG(monoVoiceId);
+    }
+    else {
+        if (monoVoiceId == 0) {
+            monoVoiceId = dsp.keyOn(key, velocity);
+        }
+        else {
+            dsp.setVoiceParamValue("/FormantSynth/freq", monoVoiceId, juce::MidiMessage::getMidiNoteInHertz(key));
+            dsp.setVoiceParamValue("/FormantSynth/gate", monoVoiceId, 1);
+            dsp.setVoiceParamValue("/FormantSynth/gain", monoVoiceId, velocity);
+        }
+    }
 }
 
 void FormantSynthAudioProcessor::keyOff(int key)
 {
-    dsp.keyOff(key);
+    if (*apvts.getRawParameterValue(MONO_ID)) {
+        dsp.keyOff(key);
+    }
+    else {
+        dsp.setVoiceParamValue("/FormantSynth/gate", monoVoiceId, 0);
+    }
+    DBG(monoVoiceId);
 }
 /*DSP Setters*/
 void FormantSynthAudioProcessor::setBpSourceWave(int value)
@@ -209,6 +305,71 @@ void FormantSynthAudioProcessor::setFricativeColour(float min, float max)
 {
     dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/fricative/noiseColourLow", min);
     dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/fricative/noiseColourHigh", max);
+}
+
+void FormantSynthAudioProcessor::setF1Freq(float freq)
+{
+    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/f1Freq", freq);
+}
+void FormantSynthAudioProcessor::setF1Bandwidth(float bandwidth)
+{
+    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/f1BW", bandwidth);
+}
+void FormantSynthAudioProcessor::setF1Gain(float gain)
+{
+    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/f1Gain", gain);
+}
+
+void FormantSynthAudioProcessor::setF2Freq(float freq)
+{
+    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/f2Freq", freq);
+}
+void FormantSynthAudioProcessor::setF2Bandwidth(float bandwidth)
+{
+    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/f2BW", bandwidth);
+}
+void FormantSynthAudioProcessor::setF2Gain(float gain)
+{
+    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/f2Gain", gain);
+}
+
+void FormantSynthAudioProcessor::setF3Freq(float freq)
+{
+    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/f3Freq", freq);
+}
+void FormantSynthAudioProcessor::setF3Bandwidth(float bandwidth)
+{
+    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/f3BW", bandwidth);
+}
+void FormantSynthAudioProcessor::setF3Gain(float gain)
+{
+    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/f3Gain", gain);
+}
+
+void FormantSynthAudioProcessor::setF4Freq(float freq)
+{
+    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/f4Freq", freq);
+}
+void FormantSynthAudioProcessor::setF4Bandwidth(float bandwidth)
+{
+    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/f4BW", bandwidth);
+}
+void FormantSynthAudioProcessor::setF4Gain(float gain)
+{
+    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/f4Gain", gain);
+}
+
+void FormantSynthAudioProcessor::setF5Freq(float freq)
+{
+    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/f5Freq", freq);
+}
+void FormantSynthAudioProcessor::setF5Bandwidth(float bandwidth)
+{
+    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/f5BW", bandwidth);
+}
+void FormantSynthAudioProcessor::setF5Gain(float gain)
+{
+    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/f5Gain", gain);
 }
 
 void FormantSynthAudioProcessor::setVoiceAttack(float attack)

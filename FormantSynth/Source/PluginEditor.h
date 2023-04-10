@@ -1,11 +1,3 @@
-/*
-  ==============================================================================
-
-    This file contains the basic framework code for a JUCE plugin editor.
-
-  ==============================================================================
-*/
-
 #pragma once
 
 #include <JuceHeader.h>
@@ -41,7 +33,8 @@ private:
 
     /*GUI Objects*/
     // Colouring
-    juce::Colour sliderTrackFore = juce::Colour(0xFFD0D0D0);
+    juce::Colour sliderTrackFore = juce::Colour(0xFFC0C0C0);
+    juce::Colour sliderTrackBack = juce::Colour(0xFFB0B0B0);
 
     juce::LookAndFeel_V4 textLookAndFeel;
     juce::LookAndFeel_V4 windowLookAndFeel;
@@ -50,6 +43,7 @@ private:
     juce::LookAndFeel_V4 filterLookAndFeel;
     juce::LookAndFeel_V4 vibratoLookAndFeel;
     juce::LookAndFeel_V4 mixerLookAndFeel;
+    juce::LookAndFeel_V4 disabledLookAndFeel;
     // Mixer
     juce::Slider fofGainSlider;
     juce::Label fofGainLabel;
@@ -73,8 +67,13 @@ private:
     juce::Label bpSourceNoiseLabel;
     juce::Label fricativeSourceLabel;
     juce::Slider fricativeColourSlider;
+    juce::ToggleButton monoButton;
+    
 
     // Filter
+    juce::Slider f1FreqSlider;
+    juce::Slider f1BandwidthSlider;
+    juce::Slider f1GainSlider;
 
     // Envelopes
     juce::Label voiceEnvelopeLabel;
@@ -115,6 +114,38 @@ private:
     juce::TextButton vibratoWindow;
     juce::TextButton envelopeWindow;
     juce::TextButton mixerWindow;
+
+    // GUI element attachments must be destructed before the associated gui element
+    // Destructed from bottom up
+    std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> bpSourceWaveComboAttach;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> bpSourcePwSliderAttach;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> bpSourcePressureAttach;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> bpSourceT0Attach;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> bpSourceTeAttach;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> bpSourceNoiseAttach;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> monoAttach;
+
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> fricativeLowCutAttach;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> fricativeHighCutAttach;
+
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> vibratoFrequencyAttach;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> vibratoAttackAttach;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> vibratoSustainAttach;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> vibratoReleaseAttach;
+
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> voiceAttachAttach;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> voiceDecayAttach;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> voiceSustainAttach;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> voiceReleaseAttach;
+
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> fricativeAttackAttach;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> fricativeDecayAttach;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> fricativeSustainAttach;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> fricativeReleaseAttach;
+
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> fofGainAttach;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> bpGainAttach;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> fricativeGainAttach;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (FormantSynthAudioProcessorEditor)
 };
