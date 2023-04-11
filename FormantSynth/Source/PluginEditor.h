@@ -2,6 +2,7 @@
 
 #include <JuceHeader.h>
 #include "PluginProcessor.h"
+#include "Phoneme.h"
 
 //==============================================================================
 /**
@@ -19,6 +20,9 @@ public:
     void paint (juce::Graphics&) override;
     void resized() override;
 
+    void updateFilterControls(Phoneme p);
+    void updateFormant(int f, float freq, float bw, float gain);
+
 private:
     FormantSynthAudioProcessor& audioProcessor;
 
@@ -27,6 +31,8 @@ private:
     void handleIncomingMidiMessage(juce::MidiInput* source, const juce::MidiMessage& message) override;
 
     void enableSourceGui(int sourceWave);
+
+    void initSlider(juce::Slider &s, juce::AudioProcessorValueTreeState::SliderAttachment &a, juce::String paramId);
 
     juce::MidiKeyboardState keyboardState;
     juce::MidiKeyboardComponent keyboardComponent;
@@ -71,9 +77,28 @@ private:
     
 
     // Filter
+    juce::Label phonemeLabel;
+    juce::Slider phonemeSlider;
+
     juce::Slider f1FreqSlider;
     juce::Slider f1BandwidthSlider;
     juce::Slider f1GainSlider;
+
+    juce::Slider f2FreqSlider;
+    juce::Slider f2BandwidthSlider;
+    juce::Slider f2GainSlider;
+
+    juce::Slider f3FreqSlider;
+    juce::Slider f3BandwidthSlider;
+    juce::Slider f3GainSlider;
+
+    juce::Slider f4FreqSlider;
+    juce::Slider f4BandwidthSlider;
+    juce::Slider f4GainSlider;
+
+    juce::Slider f5FreqSlider;
+    juce::Slider f5BandwidthSlider;
+    juce::Slider f5GainSlider;
 
     // Envelopes
     juce::Label voiceEnvelopeLabel;
@@ -127,6 +152,28 @@ private:
 
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> fricativeLowCutAttach;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> fricativeHighCutAttach;
+
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> phonemeAttach;
+
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> f1FreqAttach;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> f1BandwidthAttach;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> f1GainAttach;
+
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> f2FreqAttach;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> f2BandwidthAttach;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> f2GainAttach;
+
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> f3FreqAttach;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> f3BandwidthAttach;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> f3GainAttach;
+
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> f4FreqAttach;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> f4BandwidthAttach;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> f4GainAttach;
+
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> f5FreqAttach;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> f5BandwidthAttach;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> f5GainAttach;
 
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> vibratoFrequencyAttach;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> vibratoAttackAttach;

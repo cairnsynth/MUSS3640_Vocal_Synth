@@ -2,6 +2,7 @@
 
 #include <JuceHeader.h>
 #include "DspFaust.h"
+#include "Phoneme.h"
 
 #define SOURCE_PW_ID "bpSourcePw"
 #define SOURCE_WAVE_ID "bpSourceWave"
@@ -12,6 +13,23 @@
 #define FRICA_LOWCUT_ID "fricativeLowCut"
 #define FRICA_HIGHCUT_ID "fricativeHighCut"
 #define MONO_ID "monoSelect"
+
+#define PHONEME_ID "phoneme"
+#define F1_FREQ_ID "f1Freq"
+#define F1_GAIN_ID "f1Gain"
+#define F1_BW_ID "f1Bandwidth"
+#define F2_FREQ_ID "f2Freq"
+#define F2_GAIN_ID "f2Gain"
+#define F2_BW_ID "f2Bandwidth"
+#define F3_FREQ_ID "f3Freq"
+#define F3_GAIN_ID "f3Gain"
+#define F3_BW_ID "f3Bandwidth"
+#define F4_FREQ_ID "f4Freq"
+#define F4_GAIN_ID "f4Gain"
+#define F4_BW_ID "f4Bandwidth"
+#define F5_FREQ_ID "f5Freq"
+#define F5_GAIN_ID "f5Gain"
+#define F5_BW_ID "f5Bandwidth"
 
 #define VIBRATO_FREQUENCY_ID "vibratoFreq"
 #define VIBRATO_ATTACK_ID "vibratoAttack"
@@ -133,6 +151,10 @@ public:
     void setBpGain(float gain);
     void setFricativeGain(float gain);
 
+    void setPhoneme(std::vector<Phoneme> pVector, float interpolationVal);
+    Phoneme interpolatePhonemes(Phoneme p1, Phoneme p2, float val);
+    float lerp(float a, float b, float t);
+
     float getCpuLoad();
 
     // Value Tree
@@ -140,10 +162,18 @@ public:
     juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
 
     // File Parsing
-
+    std::vector<Phoneme> phonemeVector;
+    
+    Phoneme interpolatedPhoneme;
 
 private:
     DspFaust dsp;  // Main DSP object
+
+    void updateDspFromParameters();
+
+    // Phonemes
+    
+
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (FormantSynthAudioProcessor)
 };

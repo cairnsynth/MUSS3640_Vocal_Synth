@@ -25,6 +25,8 @@ FormantSynthAudioProcessorEditor::FormantSynthAudioProcessorEditor (FormantSynth
     sourceLookAndFeel.setColour(juce::ComboBox::textColourId, juce::Colours::darkgrey);
     sourceLookAndFeel.setColour(juce::ComboBox::arrowColourId, juce::Colours::coral);
     sourceLookAndFeel.setColour(juce::MidiKeyboardComponent::keyDownOverlayColourId, juce::Colours::coral);
+
+    filterLookAndFeel.setColour(juce::Slider::trackColourId, juce::Colours::transparentWhite);
     
     fricativeLookAndFeel.setColour(juce::Slider::thumbColourId, juce::Colours::mediumturquoise);
     fricativeLookAndFeel.setColour(juce::Slider::backgroundColourId, sliderTrackFore);
@@ -84,13 +86,9 @@ FormantSynthAudioProcessorEditor::FormantSynthAudioProcessorEditor (FormantSynth
     fricativeSourceLabel.setText("Fricative Source", juce::dontSendNotification);
     fricativeSourceLabel.setLookAndFeel(&textLookAndFeel);
 
-    int count = 0;
-
     // Bandpass source selection box
     bpSourceWaveComboAttach = std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>
         (audioProcessor.apvts, SOURCE_WAVE_ID, bpSourceWaveBox);
-    count++;
-    DBG(count);
     addAndMakeVisible(&bpSourceWaveBox);
     bpSourceWaveBox.addItemList({ "Square", "Sawtooth", "Glottal Model" }, 1);
     bpSourceWaveBox.setLookAndFeel(&sourceLookAndFeel);
@@ -102,8 +100,6 @@ FormantSynthAudioProcessorEditor::FormantSynthAudioProcessorEditor (FormantSynth
     // Bandpass source pulsewidth (square)
     bpSourcePwSliderAttach = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>
         (audioProcessor.apvts, SOURCE_PW_ID, bpSourcePwSlider);
-    count++;
-    DBG(count);
     addAndMakeVisible(&bpSourcePwSlider);
     bpSourcePwSlider.setRange(0.0, 1.0);
     bpSourcePwSlider.setValue(0.5);
@@ -118,8 +114,6 @@ FormantSynthAudioProcessorEditor::FormantSynthAudioProcessorEditor (FormantSynth
     // Bandpass source pressure (glottal model)
     bpSourcePressureAttach = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>
         (audioProcessor.apvts, SOURCE_PRESSURE_ID, bpSourcePressureSlider);
-    count++;
-    DBG(count);
     addAndMakeVisible(&bpSourcePressureSlider);
     bpSourcePressureSlider.setRange(0.0, 1.0);
     bpSourcePressureSlider.setValue(1.0);
@@ -134,8 +128,6 @@ FormantSynthAudioProcessorEditor::FormantSynthAudioProcessorEditor (FormantSynth
     // Bandpass source T0 (glottal model)
     bpSourceT0Attach = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>
         (audioProcessor.apvts, SOURCE_T0_ID, bpSourceT0Slider);
-    count++;
-    DBG(count);
     addAndMakeVisible(&bpSourceT0Slider);
     bpSourceT0Slider.setRange(0.0, 1.0);
     bpSourceT0Slider.setValue(0.944);
@@ -150,8 +142,6 @@ FormantSynthAudioProcessorEditor::FormantSynthAudioProcessorEditor (FormantSynth
     // Bandpass source Te (glottal model)
     bpSourceTeAttach = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>
         (audioProcessor.apvts, SOURCE_TE_ID, bpSourceTeSlider);
-    count++;
-    DBG(count);
     addAndMakeVisible(&bpSourceTeSlider);
     bpSourceTeSlider.setRange(0.0, 1.0);
     bpSourceTeSlider.setValue(0.224);
@@ -166,8 +156,6 @@ FormantSynthAudioProcessorEditor::FormantSynthAudioProcessorEditor (FormantSynth
     // Bandpass source noise (glottal model)
     bpSourceNoiseAttach = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>
         (audioProcessor.apvts, SOURCE_NOISE_ID, bpSourceNoiseSlider);
-    count++;
-    DBG(count);
     addAndMakeVisible(&bpSourceNoiseSlider);
     bpSourceNoiseSlider.setRange(0.0, 1.0);
     bpSourceNoiseSlider.setValue(0.0);
@@ -190,39 +178,156 @@ FormantSynthAudioProcessorEditor::FormantSynthAudioProcessorEditor (FormantSynth
         audioProcessor.setFricativeColour(fricativeColourSlider.getMinValue(), fricativeColourSlider.getMaxValue());
     };
 
-    // Mono / Poly select
-    monoAttach = std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>
-        (audioProcessor.apvts, MONO_ID, monoButton);
-    addAndMakeVisible(&monoButton);
-
     /*Filter*/
+    // Phoneme slider
+    phonemeAttach = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>
+        (audioProcessor.apvts, PHONEME_ID, phonemeSlider);
+    addAndMakeVisible(&phonemeSlider);
+    phonemeSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, true, 100, 20);
+    phonemeSlider.setRange(audioProcessor.apvts.getParameterRange(PHONEME_ID).start, audioProcessor.apvts.getParameterRange(PHONEME_ID).end);
+    phonemeSlider.onValueChange = [this] {
+        audioProcessor.setPhoneme(audioProcessor.phonemeVector, *audioProcessor.apvts.getRawParameterValue(PHONEME_ID));
+        updateFilterControls(audioProcessor.interpolatedPhoneme);
+        phonemeLabel.setText(audioProcessor.interpolatedPhoneme.getName(), juce::dontSendNotification);
+    };
+    addAndMakeVisible(&phonemeLabel);
+    phonemeLabel.setText("Phoneme", juce::dontSendNotification);
+    phonemeLabel.attachToComponent(&phonemeSlider, false);
+
     // F1 frequency
+    f1FreqAttach = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>
+        (audioProcessor.apvts, F1_FREQ_ID, f1FreqSlider);
     addAndMakeVisible(&f1FreqSlider);
-    f1FreqSlider.setSliderStyle(juce::Slider::Rotary);
-    f1FreqSlider.setTextBoxStyle(juce::Slider::NoTextBox, true, 0, 0);
+    f1FreqSlider.setSliderStyle(juce::Slider::LinearBar);
+    f1FreqSlider.setLookAndFeel(&filterLookAndFeel);
     f1FreqSlider.setRange(100.0, 5000.0);
     f1FreqSlider.setValue(800.0);
-    f1FreqSlider.onValueChange = [this] {
-        audioProcessor.setF1Freq(f1FreqSlider.getValue());
-    };
+    
     // F1 bandwidth
+    f1BandwidthAttach = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>
+        (audioProcessor.apvts, F1_BW_ID, f1BandwidthSlider);
     addAndMakeVisible(&f1BandwidthSlider);
-    f1BandwidthSlider.setSliderStyle(juce::Slider::Rotary);
-    f1BandwidthSlider.setTextBoxStyle(juce::Slider::NoTextBox, true, 0, 0);
+    f1BandwidthSlider.setSliderStyle(juce::Slider::LinearBar);
+    f1BandwidthSlider.setLookAndFeel(&filterLookAndFeel);
     f1BandwidthSlider.setRange(0.0, 1000.0);
     f1BandwidthSlider.setValue(80.0);
-    f1BandwidthSlider.onValueChange = [this] {
-        audioProcessor.setF1Bandwidth(f1BandwidthSlider.getValue());
-    };
+    
     // F1 gain
+    f1GainAttach = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>
+        (audioProcessor.apvts, F1_GAIN_ID, f1GainSlider);
     addAndMakeVisible(&f1GainSlider);
-    f1GainSlider.setSliderStyle(juce::Slider::Rotary);
-    f1GainSlider.setTextBoxStyle(juce::Slider::NoTextBox, true, 0, 0);
+    f1GainSlider.setSliderStyle(juce::Slider::LinearBar);
+    f1GainSlider.setLookAndFeel(&filterLookAndFeel);
     f1GainSlider.setRange(0.0, 1.0);
     f1GainSlider.setValue(1.0);
-    f1GainSlider.onValueChange = [this] {
-        audioProcessor.setF1Gain(f1GainSlider.getValue());
-    };
+    
+    // F2 frequency
+    f2FreqAttach = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>
+        (audioProcessor.apvts, F2_FREQ_ID, f2FreqSlider);
+    addAndMakeVisible(&f2FreqSlider);
+    f2FreqSlider.setSliderStyle(juce::Slider::LinearBar);
+    f2FreqSlider.setLookAndFeel(&filterLookAndFeel);
+    f2FreqSlider.setRange(100.0, 5000.0);
+    f2FreqSlider.setValue(800.0);
+
+    // F2 bandwidth
+    f2BandwidthAttach = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>
+        (audioProcessor.apvts, F2_BW_ID, f2BandwidthSlider);
+    addAndMakeVisible(&f2BandwidthSlider);
+    f2BandwidthSlider.setSliderStyle(juce::Slider::LinearBar);
+    f2BandwidthSlider.setLookAndFeel(&filterLookAndFeel);
+    f2BandwidthSlider.setRange(0.0, 1000.0);
+    f2BandwidthSlider.setValue(80.0);
+
+    // F2 gain
+    f2GainAttach = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>
+        (audioProcessor.apvts, F2_GAIN_ID, f2GainSlider);
+    addAndMakeVisible(&f2GainSlider);
+    f2GainSlider.setSliderStyle(juce::Slider::LinearBar);
+    f2GainSlider.setLookAndFeel(&filterLookAndFeel);
+    f2GainSlider.setRange(0.0, 1.0);
+    f2GainSlider.setValue(1.0);
+    
+    // F3 frequency
+    f3FreqAttach = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>
+        (audioProcessor.apvts, F3_FREQ_ID, f3FreqSlider);
+    addAndMakeVisible(&f3FreqSlider);
+    f3FreqSlider.setSliderStyle(juce::Slider::LinearBar);
+    f3FreqSlider.setLookAndFeel(&filterLookAndFeel);
+    f3FreqSlider.setRange(100.0, 5000.0);
+    f3FreqSlider.setValue(800.0);
+
+    // F3 bandwidth
+    f3BandwidthAttach = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>
+        (audioProcessor.apvts, F3_BW_ID, f3BandwidthSlider);
+    addAndMakeVisible(&f3BandwidthSlider);
+    f3BandwidthSlider.setSliderStyle(juce::Slider::LinearBar);
+    f3BandwidthSlider.setLookAndFeel(&filterLookAndFeel);
+    f3BandwidthSlider.setRange(0.0, 1000.0);
+    f3BandwidthSlider.setValue(80.0);
+
+    // F3 gain
+    f3GainAttach = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>
+        (audioProcessor.apvts, F3_GAIN_ID, f3GainSlider);
+    addAndMakeVisible(&f3GainSlider);
+    f3GainSlider.setSliderStyle(juce::Slider::LinearBar);
+    f3GainSlider.setLookAndFeel(&filterLookAndFeel);
+    f3GainSlider.setRange(0.0, 1.0);
+    f3GainSlider.setValue(1.0);
+
+    // F4 frequency
+    f4FreqAttach = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>
+        (audioProcessor.apvts, F4_FREQ_ID, f4FreqSlider);
+    addAndMakeVisible(&f4FreqSlider);
+    f4FreqSlider.setSliderStyle(juce::Slider::LinearBar);
+    f4FreqSlider.setLookAndFeel(&filterLookAndFeel);
+    f4FreqSlider.setRange(100.0, 5000.0);
+    f4FreqSlider.setValue(800.0);
+
+    // F4 bandwidth
+    f4BandwidthAttach = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>
+        (audioProcessor.apvts, F4_BW_ID, f4BandwidthSlider);
+    addAndMakeVisible(&f4BandwidthSlider);
+    f4BandwidthSlider.setSliderStyle(juce::Slider::LinearBar);
+    f4BandwidthSlider.setLookAndFeel(&filterLookAndFeel);
+    f4BandwidthSlider.setRange(0.0, 1000.0);
+    f4BandwidthSlider.setValue(80.0);
+
+    // F4 gain
+    f4GainAttach = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>
+        (audioProcessor.apvts, F4_GAIN_ID, f4GainSlider);
+    addAndMakeVisible(&f4GainSlider);
+    f4GainSlider.setSliderStyle(juce::Slider::LinearBar);
+    f4GainSlider.setLookAndFeel(&filterLookAndFeel);
+    f4GainSlider.setRange(0.0, 1.0);
+    f4GainSlider.setValue(1.0);
+
+    // F5 frequency
+    f5FreqAttach = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>
+        (audioProcessor.apvts, F5_FREQ_ID, f5FreqSlider);
+    addAndMakeVisible(&f5FreqSlider);
+    f5FreqSlider.setSliderStyle(juce::Slider::LinearBar);
+    f5FreqSlider.setLookAndFeel(&filterLookAndFeel);
+    f5FreqSlider.setRange(100.0, 5000.0);
+    f5FreqSlider.setValue(800.0);
+
+    // F5 bandwidth
+    f5BandwidthAttach = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>
+        (audioProcessor.apvts, F5_BW_ID, f5BandwidthSlider);
+    addAndMakeVisible(&f5BandwidthSlider);
+    f5BandwidthSlider.setSliderStyle(juce::Slider::LinearBar);
+    f5BandwidthSlider.setLookAndFeel(&filterLookAndFeel);
+    f5BandwidthSlider.setRange(0.0, 1000.0);
+    f5BandwidthSlider.setValue(80.0);
+
+    // F5 gain
+    f5GainAttach = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>
+        (audioProcessor.apvts, F5_GAIN_ID, f5GainSlider);
+    addAndMakeVisible(&f5GainSlider);
+    f5GainSlider.setSliderStyle(juce::Slider::LinearBar);
+    f5GainSlider.setLookAndFeel(&filterLookAndFeel);
+    f5GainSlider.setRange(0.0, 1.0);
+    f5GainSlider.setValue(1.0);
 
     // Voice envelope label
     addAndMakeVisible(&voiceEnvelopeLabel);
@@ -232,8 +337,6 @@ FormantSynthAudioProcessorEditor::FormantSynthAudioProcessorEditor (FormantSynth
     // Voice attack
     voiceAttachAttach = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>
         (audioProcessor.apvts, VOICE_ATTACK_ID, voiceAttackSlider);
-    count++;
-    DBG(count);
     addAndMakeVisible(&voiceAttackSlider);
     voiceAttackSlider.setSliderStyle(juce::Slider::LinearVertical);
     voiceAttackSlider.setTextBoxStyle(juce::Slider::NoTextBox, true, 0, 0);
@@ -249,8 +352,6 @@ FormantSynthAudioProcessorEditor::FormantSynthAudioProcessorEditor (FormantSynth
     // Voice decay
     voiceDecayAttach = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>
         (audioProcessor.apvts, VOICE_DECAY_ID, voiceDecaySlider);
-    count++;
-    DBG(count);
     addAndMakeVisible(&voiceDecaySlider);
     voiceDecaySlider.setSliderStyle(juce::Slider::LinearVertical);
     voiceDecaySlider.setTextBoxStyle(juce::Slider::NoTextBox, true, 0, 0);
@@ -266,8 +367,6 @@ FormantSynthAudioProcessorEditor::FormantSynthAudioProcessorEditor (FormantSynth
     // Voice sustain
     voiceSustainAttach = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>
         (audioProcessor.apvts, VOICE_SUSTAIN_ID, voiceSustainSlider);
-    count++;
-    DBG(count);
     addAndMakeVisible(&voiceSustainSlider);
     voiceSustainSlider.setSliderStyle(juce::Slider::LinearVertical);
     voiceSustainSlider.setTextBoxStyle(juce::Slider::NoTextBox, true, 0, 0);
@@ -283,8 +382,6 @@ FormantSynthAudioProcessorEditor::FormantSynthAudioProcessorEditor (FormantSynth
     // Voice release
     voiceReleaseAttach = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>
         (audioProcessor.apvts, VOICE_RELEASE_ID, voiceReleaseSlider);
-    count++;
-    DBG(count);
     addAndMakeVisible(&voiceReleaseSlider);
     voiceReleaseSlider.setSliderStyle(juce::Slider::LinearVertical);
     voiceReleaseSlider.setTextBoxStyle(juce::Slider::NoTextBox, true, 0, 0);
@@ -305,9 +402,6 @@ FormantSynthAudioProcessorEditor::FormantSynthAudioProcessorEditor (FormantSynth
     // Fricative attack
     fricativeAttackAttach = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>
         (audioProcessor.apvts, FRICA_ATTACK_ID, fricativeAttackSlider);
-
-    count++;
-    DBG(count);
     addAndMakeVisible(&fricativeAttackSlider);
     fricativeAttackSlider.setSliderStyle(juce::Slider::LinearVertical);
     fricativeAttackSlider.setTextBoxStyle(juce::Slider::NoTextBox, true, 0, 0);
@@ -323,8 +417,6 @@ FormantSynthAudioProcessorEditor::FormantSynthAudioProcessorEditor (FormantSynth
     // Fricative decay
     fricativeDecayAttach = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>
         (audioProcessor.apvts, FRICA_DECAY_ID, fricativeDecaySlider);
-    count++;
-    DBG(count);
     addAndMakeVisible(&fricativeDecaySlider);
     fricativeDecaySlider.setSliderStyle(juce::Slider::LinearVertical);
     fricativeDecaySlider.setTextBoxStyle(juce::Slider::NoTextBox, true, 0, 0);
@@ -340,8 +432,6 @@ FormantSynthAudioProcessorEditor::FormantSynthAudioProcessorEditor (FormantSynth
     // Fricative sustain
     fricativeSustainAttach = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>
         (audioProcessor.apvts, FRICA_SUSTAIN_ID, fricativeSustainSlider);
-    count++;
-    DBG(count);
     addAndMakeVisible(&fricativeSustainSlider);
     fricativeSustainSlider.setSliderStyle(juce::Slider::LinearVertical);
     fricativeSustainSlider.setTextBoxStyle(juce::Slider::NoTextBox, true, 0, 0);
@@ -357,8 +447,6 @@ FormantSynthAudioProcessorEditor::FormantSynthAudioProcessorEditor (FormantSynth
     // Fricative release
     fricativeReleaseAttach = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>
         (audioProcessor.apvts, FRICA_RELEASE_ID, fricativeReleaseSlider);
-    count++;
-    DBG(count);
     addAndMakeVisible(&fricativeReleaseSlider);
     fricativeReleaseSlider.setSliderStyle(juce::Slider::LinearVertical);
     fricativeReleaseSlider.setTextBoxStyle(juce::Slider::NoTextBox, true, 0, 0);
@@ -379,8 +467,6 @@ FormantSynthAudioProcessorEditor::FormantSynthAudioProcessorEditor (FormantSynth
     // Vibrato frequency
     vibratoFrequencyAttach = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>
         (audioProcessor.apvts, VIBRATO_FREQUENCY_ID, vibratoFrequencySlider);
-    count++;
-    DBG(count);
     addAndMakeVisible(&vibratoFrequencySlider);
     vibratoFrequencySlider.setSliderStyle(juce::Slider::LinearVertical);
     vibratoFrequencySlider.setTextBoxStyle(juce::Slider::NoTextBox, true, 0, 0);
@@ -395,8 +481,6 @@ FormantSynthAudioProcessorEditor::FormantSynthAudioProcessorEditor (FormantSynth
     // Vibrato attack
     vibratoAttackAttach = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>
         (audioProcessor.apvts, VIBRATO_ATTACK_ID, vibratoAttackSlider);
-    count++;
-    DBG(count);
     addAndMakeVisible(&vibratoAttackSlider);
     vibratoAttackSlider.setSliderStyle(juce::Slider::LinearVertical);
     vibratoAttackSlider.setTextBoxStyle(juce::Slider::NoTextBox, true, 0, 0);
@@ -411,8 +495,6 @@ FormantSynthAudioProcessorEditor::FormantSynthAudioProcessorEditor (FormantSynth
     // Vibrato sustain
     vibratoSustainAttach = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>
         (audioProcessor.apvts, VIBRATO_SUSTAIN_ID, vibratoSustainSlider);
-    count++;
-    DBG(count);
     addAndMakeVisible(&vibratoSustainSlider);
     vibratoSustainSlider.setSliderStyle(juce::Slider::LinearVertical);
     vibratoSustainSlider.setTextBoxStyle(juce::Slider::NoTextBox, true, 0, 0);
@@ -427,8 +509,6 @@ FormantSynthAudioProcessorEditor::FormantSynthAudioProcessorEditor (FormantSynth
     // Vibrato release
     vibratoReleaseAttach = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>
         (audioProcessor.apvts, VIBRATO_RELEASE_ID, vibratoReleaseSlider);
-    count++;
-    DBG(count);
     addAndMakeVisible(&vibratoReleaseSlider);
     vibratoReleaseSlider.setSliderStyle(juce::Slider::LinearVertical);
     vibratoReleaseSlider.setTextBoxStyle(juce::Slider::NoTextBox, true, 0, 0);
@@ -443,8 +523,6 @@ FormantSynthAudioProcessorEditor::FormantSynthAudioProcessorEditor (FormantSynth
     // FOF Gain
     fofGainAttach = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>
         (audioProcessor.apvts, FOF_GAIN_ID, fofGainSlider);
-    count++;
-    DBG(count);
     addAndMakeVisible(&fofGainSlider);
     fofGainSlider.setRange(0.0, 1.0);
     fofGainSlider.setValue(1.0);
@@ -459,8 +537,6 @@ FormantSynthAudioProcessorEditor::FormantSynthAudioProcessorEditor (FormantSynth
     // BP Gain
     bpGainAttach = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>
         (audioProcessor.apvts, BP_GAIN_ID, bpGainSlider);
-    count++;
-    DBG(count);
     addAndMakeVisible(&bpGainSlider);
     bpGainSlider.setRange(0.0, 1.0);
     bpGainSlider.setValue(1.0);
@@ -475,8 +551,6 @@ FormantSynthAudioProcessorEditor::FormantSynthAudioProcessorEditor (FormantSynth
     // Fricative Gain
     fricativeGainAttach = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>
         (audioProcessor.apvts, FRICA_GAIN_ID, fricativeGainSlider);
-    count++;
-    DBG(count);
     addAndMakeVisible(&fricativeGainSlider);
     fricativeGainSlider.setRange(0.0, 1.0);
     fricativeGainSlider.setValue(1.0);
@@ -542,7 +616,7 @@ void FormantSynthAudioProcessorEditor::resized()
         juce::FlexItem(fricativeColourSlider).withFlex(1, 1, sourceArea.getHeight() / 16).withMinWidth(50.0).withMinHeight(30.0).withWidth(sourceArea.getWidth() - objectBorder).withHeight(objectHeight) });
     sourceFB.performLayout(sourceArea.reduced(objectBorder).toFloat());
 
-    monoButton.setBounds(filterArea.reduced(objectBorder));
+    phonemeSlider.setBounds(filterArea.removeFromBottom(100).removeFromTop(100).reduced(objectBorder));
 
     keyboardComponent.setBounds(keyboardArea);
     headerWindow.setBounds(headerArea.reduced(windowBorder));
@@ -554,20 +628,27 @@ void FormantSynthAudioProcessorEditor::resized()
 
     auto envelopeHeaderArea = envelopeArea.removeFromTop(headerHeight);
 
-    //bpSourceLabel.setBounds(sourceArea.removeFromTop(objectHeight).reduced(objectBorder));
-    //bpSourceWaveBox.setBounds(sourceArea.removeFromTop(objectHeight).reduced(objectBorder));
-    //bpSourcePwSlider.setBounds(sourceArea.removeFromTop(objectHeight).reduced(objectBorder));
-    //bpSourcePressureSlider.setBounds(sourceArea.removeFromTop(objectHeight).reduced(objectBorder));
-    //bpSourceT0Slider.setBounds(sourceArea.removeFromTop(objectHeight).reduced(objectBorder));
-    //bpSourceTeSlider.setBounds(sourceArea.removeFromTop(objectHeight).reduced(objectBorder));
-    //bpSourceNoiseSlider.setBounds(sourceArea.removeFromTop(objectHeight).reduced(objectBorder));
-    //fricativeSourceLabel.setBounds(sourceArea.removeFromTop(objectHeight).reduced(objectBorder));
-    //fricativeColourSlider.setBounds(sourceArea.removeFromTop(objectHeight).reduced(objectBorder));
 
     auto f1Area = formantArea.removeFromLeft(formantArea.getWidth() / 5);
     f1FreqSlider.setBounds(f1Area.removeFromTop(f1Area.getHeight() / 3).reduced(0));
     f1BandwidthSlider.setBounds(f1Area.removeFromTop(f1Area.getHeight() / 2).reduced(0));
     f1GainSlider.setBounds(f1Area.reduced(0));
+    auto f2Area = formantArea.removeFromLeft(formantArea.getWidth() / 4);
+    f2FreqSlider.setBounds(f2Area.removeFromTop(f2Area.getHeight() / 3).reduced(0));
+    f2BandwidthSlider.setBounds(f2Area.removeFromTop(f2Area.getHeight() / 2).reduced(0));
+    f2GainSlider.setBounds(f2Area.reduced(0));
+    auto f3Area = formantArea.removeFromLeft(formantArea.getWidth() / 3);
+    f3FreqSlider.setBounds(f3Area.removeFromTop(f3Area.getHeight() / 3).reduced(0));
+    f3BandwidthSlider.setBounds(f3Area.removeFromTop(f3Area.getHeight() / 2).reduced(0));
+    f3GainSlider.setBounds(f3Area.reduced(0));
+    auto f4Area = formantArea.removeFromLeft(formantArea.getWidth() / 2);
+    f4FreqSlider.setBounds(f4Area.removeFromTop(f4Area.getHeight() / 3).reduced(0));
+    f4BandwidthSlider.setBounds(f4Area.removeFromTop(f4Area.getHeight() / 2).reduced(0));
+    f4GainSlider.setBounds(f4Area.reduced(0));
+    auto f5Area = formantArea.removeFromLeft(formantArea.getWidth() / 1);
+    f5FreqSlider.setBounds(f5Area.removeFromTop(f5Area.getHeight() / 3).reduced(0));
+    f5BandwidthSlider.setBounds(f5Area.removeFromTop(f5Area.getHeight() / 2).reduced(0));
+    f5GainSlider.setBounds(f5Area.reduced(0));
 
     voiceEnvelopeLabel.setBounds(envelopeHeaderArea.removeFromLeft(envelopeHeaderArea.getWidth() / 2));
     fricativeEnvelopeLabel.setBounds(envelopeHeaderArea);
@@ -657,4 +738,41 @@ void FormantSynthAudioProcessorEditor::enableSourceGui(int sourceWave)
         break;
     }
     }
+}
+
+void FormantSynthAudioProcessorEditor::initSlider(juce::Slider& s, juce::AudioProcessorValueTreeState::SliderAttachment& a, juce::String paramId)
+{
+    /*
+    a = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>
+        (audioProcessor.apvts, paramId, s);
+    */
+}
+
+void FormantSynthAudioProcessorEditor::updateFilterControls(Phoneme p)
+{
+    f1FreqSlider.setValue(p.getFrequency(0));
+    f1BandwidthSlider.setValue(p.getBandwidth(0));
+    f1GainSlider.setValue(p.getGain(0));
+
+    f2FreqSlider.setValue(p.getFrequency(1));
+    f2BandwidthSlider.setValue(p.getBandwidth(1));
+    f2GainSlider.setValue(p.getGain(1));
+
+    f3FreqSlider.setValue(p.getFrequency(2));
+    f3BandwidthSlider.setValue(p.getBandwidth(2));
+    f3GainSlider.setValue(p.getGain(2));
+
+    f4FreqSlider.setValue(p.getFrequency(3));
+    f4BandwidthSlider.setValue(p.getBandwidth(3));
+    f4GainSlider.setValue(p.getGain(3));
+
+    f5FreqSlider.setValue(p.getFrequency(4));
+    f5BandwidthSlider.setValue(p.getBandwidth(4));
+    f5GainSlider.setValue(p.getGain(4));
+
+    fricativeGainSlider.setValue(p.getFricativeGain());
+    fricativeAttackSlider.setValue(p.getFricativeAttack());
+    fricativeDecaySlider.setValue(p.getFricativeDecay());
+    fricativeSustainSlider.setValue(p.getFricativeSustain());
+    fricativeReleaseSlider.setValue(p.getFricativeRelease());
 }
