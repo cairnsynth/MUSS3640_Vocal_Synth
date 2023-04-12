@@ -22,14 +22,16 @@ std::string Phoneme::getName()
 
 void Phoneme::setFormant(int formant, float frequency, float bandwidth, float gain)
 {
-    _formants[formant].frequency = frequency;
-    _formants[formant].bandwidth = bandwidth;
-    _formants[formant].gain = gain;
+    setFrequency(formant, frequency);
+    setBandwidth(formant, bandwidth);
+    setGain(formant, gain);
 }
 
 void Phoneme::setFrequency(int formant, float frequency)
 {
-    _formants[formant].frequency = frequency;
+    if(20.0f < frequency < 20000.0f) { _formants[formant].frequency = frequency; }
+    else if(frequency < 20.0f) { _formants[formant].frequency = 20.0f; }
+    else { _formants[formant].frequency = 20000.0f; }
 }
 
 float Phoneme::getFrequency(int formant)
@@ -39,7 +41,15 @@ float Phoneme::getFrequency(int formant)
 
 void Phoneme::setBandwidth(int formant, float bandwidth)
 {
-    _formants[formant].bandwidth = bandwidth;
+    if(0 < bandwidth < (2.0f * getFrequency(formant)))
+    {
+        _formants[formant].bandwidth = bandwidth;
+    }
+    else if (bandwidth > (2.0f * getFrequency(formant)))
+    {
+        _formants[formant].bandwidth = 2.0f * getFrequency(formant);
+    }
+    else { _formants[formant].bandwidth = 0.0f; }
 }
 
 float Phoneme::getBandwidth(int formant)
@@ -49,7 +59,9 @@ float Phoneme::getBandwidth(int formant)
 
 void Phoneme::setGain(int formant, float gain)
 {
-    _formants[formant].gain = gain;
+    if(0.0f <= gain <= 1.0f) { _formants[formant].gain = gain; }
+    else if(1.0f < gain) { _formants[formant].gain = 1.0; }
+    else if(gain < 0.0f) { _formants[formant].gain = 0.0f; }
 }
 
 float Phoneme::getGain(int formant) 
@@ -64,7 +76,9 @@ Phoneme::Formant Phoneme::getFormant(int formant)
 
 void Phoneme::setFricativeGain(float gain)
 {
-    _fricativeGain = gain;
+    if (0.0f < gain < 1.0f) { _fricativeGain = gain; }
+    else if (gain > 1.0f) { _fricativeGain = 1.0; }
+    else { _fricativeGain = 0.0f; }
 }
 
 float Phoneme::getFricativeGain()
@@ -114,8 +128,10 @@ float Phoneme::getFricativeRelease()
 
 void Phoneme::setFricativeColour(float low, float high)
 {
-    _fricativeLow = low;
-    _fricativeHigh = high;
+    if (low > 20.0f) { _fricativeLow = low; }
+    else { _fricativeLow = 20.0f; }
+    if (high < 20000.0f) { _fricativeHigh = high; }
+    else { _fricativeHigh = 20000.0f; }
 }
 
 float Phoneme::getFricativeLow()

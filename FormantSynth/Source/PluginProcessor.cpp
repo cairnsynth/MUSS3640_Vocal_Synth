@@ -15,49 +15,7 @@ FormantSynthAudioProcessor::FormantSynthAudioProcessor()
 apvts(*this, nullptr, "PARAMETERS", createParameterLayout())
 #endif
 {
-    Phoneme defaultA;
-    defaultA.setFormant(0, 600, 60, 1.0);
-    defaultA.setFormant(1, 1040, 70, 0.199526);
-    defaultA.setFormant(2, 2250, 110, 0.199526);
-    defaultA.setFormant(3, 2450, 120, 0.199526);
-    defaultA.setFormant(4, 2750, 130, 0.01);
-    defaultA.setName("A");
-    Phoneme defaultE;
-    defaultE.setFormant(0, 400, 40, 1.0);
-    defaultE.setFormant(1, 1620, 80, 0.063096);
-    defaultE.setFormant(2, 2400, 100, 0.125893);
-    defaultE.setFormant(3, 3800, 120, 0.063096);
-    defaultE.setFormant(4, 3150, 120, 0.015849);
-    defaultE.setName("E");
-    Phoneme defaultI;
-    defaultI.setFormant(0, 250, 60, 1.0);
-    defaultI.setFormant(1, 1740, 90, 0.001);
-    defaultI.setFormant(2, 2600, 100, 0.025119);
-    defaultI.setFormant(3, 3050, 120, 0.00631);
-    defaultI.setFormant(4, 3340, 120, 0.001585);
-    defaultI.setName("I");
-    Phoneme defaultO;
-    defaultO.setFormant(0, 400, 40, 1.0);
-    defaultO.setFormant(1, 750, 80, 0.079433);
-    defaultO.setFormant(2, 2400, 100, 0.007943);
-    defaultO.setFormant(3, 2600, 120, 0.01);
-    defaultO.setFormant(4, 2900, 120, 0.0001);
-    defaultO.setName("O");
-    Phoneme defaultU;
-    defaultU.setFormant(0, 350, 40, 1.0);
-    defaultU.setFormant(1, 600, 80, 0.01);
-    defaultU.setFormant(2, 2400, 100, 0.000631);
-    defaultU.setFormant(3, 2675, 120, 0.001585);
-    defaultU.setFormant(4, 2950, 120, 0.001585);
-    defaultU.setName("U");
-
-    phonemeVector.push_back(std::move(defaultA));
-    phonemeVector.push_back(std::move(defaultE));
-    phonemeVector.push_back(std::move(defaultI));
-    phonemeVector.push_back(std::move(defaultO));
-    phonemeVector.push_back(std::move(defaultU));
-
-
+    initialisePhonemes();
     dsp.start();
 }
 
@@ -163,6 +121,51 @@ juce::AudioProcessorValueTreeState::ParameterLayout FormantSynthAudioProcessor::
     return { params.begin(), params.end() };
 }
 
+void FormantSynthAudioProcessor::initialisePhonemes()
+{
+    Phoneme defaultA;
+    defaultA.setFormant(0, 600, 60, 1.0);
+    defaultA.setFormant(1, 1040, 70, 0.199526);
+    defaultA.setFormant(2, 2250, 110, 0.199526);
+    defaultA.setFormant(3, 2450, 120, 0.199526);
+    defaultA.setFormant(4, 2750, 130, 0.01);
+    defaultA.setName("A");
+    Phoneme defaultE;
+    defaultE.setFormant(0, 400, 40, 1.0);
+    defaultE.setFormant(1, 1620, 80, 0.063096);
+    defaultE.setFormant(2, 2400, 100, 0.125893);
+    defaultE.setFormant(3, 3800, 120, 0.063096);
+    defaultE.setFormant(4, 3150, 120, 0.015849);
+    defaultE.setName("E");
+    Phoneme defaultI;
+    defaultI.setFormant(0, 250, 60, 1.0);
+    defaultI.setFormant(1, 1740, 90, 0.001);
+    defaultI.setFormant(2, 2600, 100, 0.025119);
+    defaultI.setFormant(3, 3050, 120, 0.00631);
+    defaultI.setFormant(4, 3340, 120, 0.001585);
+    defaultI.setName("I");
+    Phoneme defaultO;
+    defaultO.setFormant(0, 400, 40, 1.0);
+    defaultO.setFormant(1, 750, 80, 0.079433);
+    defaultO.setFormant(2, 2400, 100, 0.007943);
+    defaultO.setFormant(3, 2600, 120, 0.01);
+    defaultO.setFormant(4, 2900, 120, 0.0001);
+    defaultO.setName("O");
+    Phoneme defaultU;
+    defaultU.setFormant(0, 350, 40, 1.0);
+    defaultU.setFormant(1, 600, 80, 0.01);
+    defaultU.setFormant(2, 2400, 100, 0.000631);
+    defaultU.setFormant(3, 2675, 120, 0.001585);
+    defaultU.setFormant(4, 2950, 120, 0.001585);
+    defaultU.setName("U");
+
+    phonemeVector.push_back(std::move(defaultA));
+    phonemeVector.push_back(std::move(defaultE));
+    phonemeVector.push_back(std::move(defaultI));
+    phonemeVector.push_back(std::move(defaultO));
+    phonemeVector.push_back(std::move(defaultU));
+}
+
 const juce::String FormantSynthAudioProcessor::getName() const
 {
     return JucePlugin_Name;
@@ -263,7 +266,7 @@ bool FormantSynthAudioProcessor::isBusesLayoutSupported (const BusesLayout& layo
 
 void FormantSynthAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
-    updateDspFromParameters();
+    //updateDspFromParameters();
 }
 
 //==============================================================================
@@ -302,7 +305,7 @@ juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 //End JUCE generated Code
 void FormantSynthAudioProcessor::updateDspFromParameters()
 {
-    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/source/bpSourceSelect", *apvts.getRawParameterValue(SOURCE_WAVE_ID) - 1);
+    
     dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/source/bpSourcePW", *apvts.getRawParameterValue(SOURCE_PW_ID));
     dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/source/Pressure", *apvts.getRawParameterValue(SOURCE_PRESSURE_ID));
     dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/source/T0", *apvts.getRawParameterValue(SOURCE_T0_ID));
@@ -362,166 +365,166 @@ void FormantSynthAudioProcessor::keyOff(int key)
     }
 }
 /*DSP Setters*/
-void FormantSynthAudioProcessor::setBpSourceWave(int value)
+void FormantSynthAudioProcessor::setBpSourceWave()
 {
-    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/source/bpSourceSelect", value-1);
+    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/source/bpSourceSelect", *apvts.getRawParameterValue(SOURCE_WAVE_ID) - 1);
 }
-void FormantSynthAudioProcessor::setBpSourcePw(float pw)
+void FormantSynthAudioProcessor::setBpSourcePw()
 {
-    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/source/bpSourcePW", pw);
+    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/source/bpSourcePW", *apvts.getRawParameterValue(SOURCE_PW_ID));
 }
-void FormantSynthAudioProcessor::setBpSourcePressure(float pressure)
+void FormantSynthAudioProcessor::setBpSourcePressure()
 {
-    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/source/Pressure", pressure);
+    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/source/Pressure", *apvts.getRawParameterValue(SOURCE_PRESSURE_ID));
 }
-void FormantSynthAudioProcessor::setBpSourceT0(float t0)
+void FormantSynthAudioProcessor::setBpSourceT0()
 {
-    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/source/T0", t0);
+    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/source/T0", *apvts.getRawParameterValue(SOURCE_T0_ID));
 }
-void FormantSynthAudioProcessor::setBpSourceTe(float te)
+void FormantSynthAudioProcessor::setBpSourceTe()
 {
-    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/source/Te", te);
+    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/source/Te", *apvts.getRawParameterValue(SOURCE_TE_ID));
 }
-void FormantSynthAudioProcessor::setBpSourceNoise(float noise)
+void FormantSynthAudioProcessor::setBpSourceNoise()
 {
-    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/source/noise", noise);
-}
-
-void FormantSynthAudioProcessor::setFricativeColour(float min, float max)
-{
-    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/fricative/noiseColourLow", min);
-    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/fricative/noiseColourHigh", max);
+    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/source/noise", *apvts.getRawParameterValue(SOURCE_NOISE_ID));
 }
 
-void FormantSynthAudioProcessor::setF1Freq(float freq)
+void FormantSynthAudioProcessor::setFricativeColour()
 {
-    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/f1Freq", freq);
-}
-void FormantSynthAudioProcessor::setF1Bandwidth(float bandwidth)
-{
-    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/f1BW", bandwidth);
-}
-void FormantSynthAudioProcessor::setF1Gain(float gain)
-{
-    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/f1Gain", gain);
+    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/fricative/noiseColourLow", *apvts.getRawParameterValue(FRICA_LOWCUT_ID));
+    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/fricative/noiseColourHigh", *apvts.getRawParameterValue(FRICA_HIGHCUT_ID));
 }
 
-void FormantSynthAudioProcessor::setF2Freq(float freq)
+void FormantSynthAudioProcessor::setF1Freq()
 {
-    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/f2Freq", freq);
+    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/f1Freq", *apvts.getRawParameterValue(F1_FREQ_ID));
 }
-void FormantSynthAudioProcessor::setF2Bandwidth(float bandwidth)
+void FormantSynthAudioProcessor::setF1Bandwidth()
 {
-    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/f2BW", bandwidth);
+    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/f1BW", *apvts.getRawParameterValue(F1_BW_ID));
 }
-void FormantSynthAudioProcessor::setF2Gain(float gain)
+void FormantSynthAudioProcessor::setF1Gain()
 {
-    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/f2Gain", gain);
-}
-
-void FormantSynthAudioProcessor::setF3Freq(float freq)
-{
-    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/f3Freq", freq);
-}
-void FormantSynthAudioProcessor::setF3Bandwidth(float bandwidth)
-{
-    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/f3BW", bandwidth);
-}
-void FormantSynthAudioProcessor::setF3Gain(float gain)
-{
-    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/f3Gain", gain);
+    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/f1Gain", *apvts.getRawParameterValue(F1_GAIN_ID));
 }
 
-void FormantSynthAudioProcessor::setF4Freq(float freq)
+void FormantSynthAudioProcessor::setF2Freq()
 {
-    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/f4Freq", freq);
+    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/f2Freq", *apvts.getRawParameterValue(F2_FREQ_ID));
 }
-void FormantSynthAudioProcessor::setF4Bandwidth(float bandwidth)
+void FormantSynthAudioProcessor::setF2Bandwidth()
 {
-    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/f4BW", bandwidth);
+    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/f2BW", *apvts.getRawParameterValue(F2_BW_ID));
 }
-void FormantSynthAudioProcessor::setF4Gain(float gain)
+void FormantSynthAudioProcessor::setF2Gain()
 {
-    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/f4Gain", gain);
-}
-
-void FormantSynthAudioProcessor::setF5Freq(float freq)
-{
-    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/f5Freq", freq);
-}
-void FormantSynthAudioProcessor::setF5Bandwidth(float bandwidth)
-{
-    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/f5BW", bandwidth);
-}
-void FormantSynthAudioProcessor::setF5Gain(float gain)
-{
-    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/f5Gain", gain);
+    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/f2Gain", *apvts.getRawParameterValue(F2_GAIN_ID));
 }
 
-void FormantSynthAudioProcessor::setVoiceAttack(float attack)
+void FormantSynthAudioProcessor::setF3Freq()
 {
-    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/envelope/voiceAttack", attack);
+    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/f3Freq", *apvts.getRawParameterValue(F3_FREQ_ID));
 }
-void FormantSynthAudioProcessor::setVoiceDecay(float decay)
+void FormantSynthAudioProcessor::setF3Bandwidth()
 {
-    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/envelope/voiceDecay", decay);
+    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/f3BW", *apvts.getRawParameterValue(F3_BW_ID));
 }
-void FormantSynthAudioProcessor::setVoiceSustain(float sustain)
+void FormantSynthAudioProcessor::setF3Gain()
 {
-    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/envelope/voiceSustain", sustain);
-}
-void FormantSynthAudioProcessor::setVoiceRelease(float release)
-{
-    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/envelope/voiceRelease", release);
+    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/f3Gain", *apvts.getRawParameterValue(F3_GAIN_ID));
 }
 
-void FormantSynthAudioProcessor::setFricativeAttack(float attack)
+void FormantSynthAudioProcessor::setF4Freq()
 {
-    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/fricative/noiseAttack", attack);
+    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/f4Freq", *apvts.getRawParameterValue(F4_FREQ_ID));
 }
-void FormantSynthAudioProcessor::setFricativeDecay(float decay)
+void FormantSynthAudioProcessor::setF4Bandwidth()
 {
-    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/fricative/noiseDecay", decay);
+    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/f4BW", *apvts.getRawParameterValue(F4_BW_ID));
 }
-void FormantSynthAudioProcessor::setFricativeSustain(float sustain)
+void FormantSynthAudioProcessor::setF4Gain()
 {
-    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/fricative/noiseSustain", sustain);
-}
-void FormantSynthAudioProcessor::setFricativeRelease(float release)
-{
-    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/fricative/noiseRelease", release);
+    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/f4Gain", *apvts.getRawParameterValue(F4_GAIN_ID));
 }
 
-void FormantSynthAudioProcessor::setVibratoFrequency(float frequency)
+void FormantSynthAudioProcessor::setF5Freq()
 {
-    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/vibrato/vibratoFreq", frequency);
+    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/f5Freq", *apvts.getRawParameterValue(F5_FREQ_ID));
 }
-void FormantSynthAudioProcessor::setVibratoAttack(float attack)
+void FormantSynthAudioProcessor::setF5Bandwidth()
 {
-    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/vibrato/vibratoAttack", attack);
+    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/f5BW", *apvts.getRawParameterValue(F5_BW_ID));
 }
-void FormantSynthAudioProcessor::setVibratoSustain(float sustain)
+void FormantSynthAudioProcessor::setF5Gain()
 {
-    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/vibrato/vibratoSustain", sustain);
-}
-void FormantSynthAudioProcessor::setVibratoRelease(float release)
-{
-    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/vibrato/vibratoRelease", release);
+    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/f5Gain", *apvts.getRawParameterValue(F5_GAIN_ID));
 }
 
-void FormantSynthAudioProcessor::setFofGain(float gain)
+void FormantSynthAudioProcessor::setVoiceAttack()
 {
-    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/mixer/fofGain", gain);
+    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/envelope/voiceAttack", *apvts.getRawParameterValue(VOICE_ATTACK_ID));
+}
+void FormantSynthAudioProcessor::setVoiceDecay()
+{
+    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/envelope/voiceDecay", *apvts.getRawParameterValue(VOICE_DECAY_ID));
+}
+void FormantSynthAudioProcessor::setVoiceSustain()
+{
+    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/envelope/voiceSustain", *apvts.getRawParameterValue(VOICE_SUSTAIN_ID));
+}
+void FormantSynthAudioProcessor::setVoiceRelease()
+{
+    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/envelope/voiceRelease", *apvts.getRawParameterValue(VOICE_RELEASE_ID));
 }
 
-void FormantSynthAudioProcessor::setBpGain(float gain)
+void FormantSynthAudioProcessor::setFricativeAttack()
 {
-    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/mixer/bpGain", gain);
+    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/fricative/noiseAttack", *apvts.getRawParameterValue(FRICA_ATTACK_ID));
+}
+void FormantSynthAudioProcessor::setFricativeDecay()
+{
+    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/fricative/noiseDecay", *apvts.getRawParameterValue(FRICA_DECAY_ID));
+}
+void FormantSynthAudioProcessor::setFricativeSustain()
+{
+    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/fricative/noiseSustain", *apvts.getRawParameterValue(FRICA_SUSTAIN_ID));
+}
+void FormantSynthAudioProcessor::setFricativeRelease()
+{
+    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/fricative/noiseRelease", *apvts.getRawParameterValue(FRICA_RELEASE_ID));
 }
 
-void FormantSynthAudioProcessor::setFricativeGain(float gain)
+void FormantSynthAudioProcessor::setVibratoFrequency()
 {
-    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/mixer/fricativeGain", gain);
+    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/vibrato/vibratoFreq", *apvts.getRawParameterValue(VIBRATO_FREQUENCY_ID));
+}
+void FormantSynthAudioProcessor::setVibratoAttack()
+{
+    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/vibrato/vibratoAttack", *apvts.getRawParameterValue(VIBRATO_ATTACK_ID));
+}
+void FormantSynthAudioProcessor::setVibratoSustain()
+{
+    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/vibrato/vibratoSustain", *apvts.getRawParameterValue(VIBRATO_SUSTAIN_ID));
+}
+void FormantSynthAudioProcessor::setVibratoRelease()
+{
+    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/vibrato/vibratoRelease", *apvts.getRawParameterValue(VIBRATO_RELEASE_ID));
+}
+
+void FormantSynthAudioProcessor::setFofGain()
+{
+    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/mixer/fofGain", *apvts.getRawParameterValue(FOF_GAIN_ID));
+}
+
+void FormantSynthAudioProcessor::setBpGain()
+{
+    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/mixer/bpGain", *apvts.getRawParameterValue(BP_GAIN_ID));
+}
+
+void FormantSynthAudioProcessor::setFricativeGain()
+{
+    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/mixer/fricativeGain", *apvts.getRawParameterValue(FRICA_GAIN_ID));
 }
 
 float FormantSynthAudioProcessor::getCpuLoad()
@@ -549,23 +552,21 @@ void FormantSynthAudioProcessor::setPhoneme(std::vector<Phoneme> pVector, float 
         interpolatedPhoneme = interpolatePhonemes(phonemeVector[integralOffset], phonemeVector[integralOffset + 1], normalisedInterpolationValue);
     }
 
-    setF1Freq(*apvts.getRawParameterValue(F1_FREQ_ID));
-    setF1Bandwidth(*apvts.getRawParameterValue(F1_BW_ID));
-    setF1Gain(*apvts.getRawParameterValue(F1_GAIN_ID));
-    setF2Freq(*apvts.getRawParameterValue(F2_FREQ_ID));
-    setF2Bandwidth(*apvts.getRawParameterValue(F2_BW_ID));
-    setF2Gain(*apvts.getRawParameterValue(F2_GAIN_ID));
-    setF3Freq(*apvts.getRawParameterValue(F3_FREQ_ID));
-    setF3Bandwidth(*apvts.getRawParameterValue(F3_BW_ID));
-    setF3Gain(*apvts.getRawParameterValue(F3_GAIN_ID));
-    setF4Freq(*apvts.getRawParameterValue(F4_FREQ_ID));
-    setF4Bandwidth(*apvts.getRawParameterValue(F4_BW_ID));
-    setF4Gain(*apvts.getRawParameterValue(F4_GAIN_ID));
-    setF5Freq(*apvts.getRawParameterValue(F5_FREQ_ID));
-    setF5Bandwidth(*apvts.getRawParameterValue(F5_BW_ID));
-    setF5Gain(*apvts.getRawParameterValue(F5_GAIN_ID));
-
-    DBG(interpolatedPhoneme.getName());
+    setF1Freq();
+    setF1Bandwidth();
+    setF1Gain();
+    setF2Freq();
+    setF2Bandwidth();
+    setF2Gain();
+    setF3Freq();
+    setF3Bandwidth();
+    setF3Gain();
+    setF4Freq();
+    setF4Bandwidth();
+    setF4Gain();
+    setF5Freq();
+    setF5Bandwidth();
+    setF5Gain();
 }
 
 Phoneme FormantSynthAudioProcessor::interpolatePhonemes(Phoneme p1, Phoneme p2, float val)

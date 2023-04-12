@@ -93,6 +93,7 @@ FormantSynthAudioProcessorEditor::FormantSynthAudioProcessorEditor (FormantSynth
     bpSourceWaveBox.addItemList({ "Square", "Sawtooth", "Glottal Model" }, 1);
     bpSourceWaveBox.setLookAndFeel(&sourceLookAndFeel);
     bpSourceWaveBox.onChange = [this] {
+        audioProcessor.setBpSourceWave();
         enableSourceGui(bpSourceWaveBox.getSelectedId());
     };
     bpSourceWaveBox.setSelectedItemIndex(0);
@@ -105,7 +106,9 @@ FormantSynthAudioProcessorEditor::FormantSynthAudioProcessorEditor (FormantSynth
     bpSourcePwSlider.setValue(0.5);
     bpSourcePwSlider.setTextBoxStyle(juce::Slider::NoTextBox, true, 0, 0);
     bpSourcePwSlider.setLookAndFeel(&sourceLookAndFeel);
-
+    bpSourcePwSlider.onValueChange = [this] {
+        audioProcessor.setBpSourcePw();
+    };
     addAndMakeVisible(&bpSourcePwLabel);
     bpSourcePwLabel.setText("Pulsewidth", juce::dontSendNotification);
     //bpSourcePwLabel.attachToComponent(&bpSourcePwSlider, true);
@@ -119,7 +122,9 @@ FormantSynthAudioProcessorEditor::FormantSynthAudioProcessorEditor (FormantSynth
     bpSourcePressureSlider.setValue(1.0);
     bpSourcePressureSlider.setTextBoxStyle(juce::Slider::NoTextBox, true, 0, 0);
     bpSourcePressureSlider.setLookAndFeel(&sourceLookAndFeel);
-   
+    bpSourcePressureSlider.onValueChange = [this] {
+        audioProcessor.setBpSourcePressure();
+    };
     addAndMakeVisible(&bpSourcePressureLabel);
     bpSourcePressureLabel.setText("Pressure", juce::dontSendNotification);
     //bpSourcePressureLabel.attachToComponent(&bpSourcePressureSlider, false);
@@ -133,7 +138,9 @@ FormantSynthAudioProcessorEditor::FormantSynthAudioProcessorEditor (FormantSynth
     bpSourceT0Slider.setValue(0.944);
     bpSourceT0Slider.setTextBoxStyle(juce::Slider::NoTextBox, true, 0, 0);
     bpSourceT0Slider.setLookAndFeel(&sourceLookAndFeel);
-
+    bpSourceT0Slider.onValueChange = [this] {
+        audioProcessor.setBpSourceT0();
+    };
     addAndMakeVisible(&bpSourceT0Label);
     bpSourceT0Label.setText("T0", juce::dontSendNotification);
     //bpSourceT0Label.attachToComponent(&bpSourceT0Slider, false);
@@ -147,7 +154,9 @@ FormantSynthAudioProcessorEditor::FormantSynthAudioProcessorEditor (FormantSynth
     bpSourceTeSlider.setValue(0.224);
     bpSourceTeSlider.setTextBoxStyle(juce::Slider::NoTextBox, true, 0, 0);
     bpSourceTeSlider.setLookAndFeel(&sourceLookAndFeel);
-    
+    bpSourceTeSlider.onValueChange = [this] {
+        audioProcessor.setBpSourceTe();
+    };
     addAndMakeVisible(&bpSourceTeLabel);
     bpSourceTeLabel.setText("Te", juce::dontSendNotification);
     //bpSourceTeLabel.attachToComponent(&bpSourceTeSlider, false);
@@ -161,7 +170,9 @@ FormantSynthAudioProcessorEditor::FormantSynthAudioProcessorEditor (FormantSynth
     bpSourceNoiseSlider.setValue(0.0);
     bpSourceNoiseSlider.setTextBoxStyle(juce::Slider::NoTextBox, true, 0, 0);
     bpSourceNoiseSlider.setLookAndFeel(&sourceLookAndFeel);
-    
+    bpSourceNoiseSlider.onValueChange = [this] {
+        audioProcessor.setBpSourceNoise();
+    };
     addAndMakeVisible(&bpSourceNoiseLabel);
     bpSourceNoiseLabel.setText("Noise", juce::dontSendNotification);
     //bpSourceNoiseLabel.attachToComponent(&bpSourceNoiseSlider, false);
@@ -175,7 +186,7 @@ FormantSynthAudioProcessorEditor::FormantSynthAudioProcessorEditor (FormantSynth
     fricativeColourSlider.setRange(20.0, 20000.0);
     fricativeColourSlider.setMinAndMaxValues(20.0, 20000.0, juce::dontSendNotification);
     fricativeColourSlider.onValueChange = [this] {
-        audioProcessor.setFricativeColour(fricativeColourSlider.getMinValue(), fricativeColourSlider.getMaxValue());
+        audioProcessor.setFricativeColour();
     };
 
     /*Filter*/
@@ -202,7 +213,9 @@ FormantSynthAudioProcessorEditor::FormantSynthAudioProcessorEditor (FormantSynth
     f1FreqSlider.setLookAndFeel(&filterLookAndFeel);
     f1FreqSlider.setRange(100.0, 5000.0);
     f1FreqSlider.setValue(800.0);
-    
+    f1FreqSlider.onValueChange = [this] {
+        audioProcessor.setF1Freq();
+    };
     // F1 bandwidth
     f1BandwidthAttach = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>
         (audioProcessor.apvts, F1_BW_ID, f1BandwidthSlider);
@@ -211,7 +224,9 @@ FormantSynthAudioProcessorEditor::FormantSynthAudioProcessorEditor (FormantSynth
     f1BandwidthSlider.setLookAndFeel(&filterLookAndFeel);
     f1BandwidthSlider.setRange(0.0, 1000.0);
     f1BandwidthSlider.setValue(80.0);
-    
+    f1BandwidthSlider.onValueChange = [this] {
+        audioProcessor.setF1Bandwidth();
+    };
     // F1 gain
     f1GainAttach = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>
         (audioProcessor.apvts, F1_GAIN_ID, f1GainSlider);
@@ -220,7 +235,9 @@ FormantSynthAudioProcessorEditor::FormantSynthAudioProcessorEditor (FormantSynth
     f1GainSlider.setLookAndFeel(&filterLookAndFeel);
     f1GainSlider.setRange(0.0, 1.0);
     f1GainSlider.setValue(1.0);
-    
+    f1GainSlider.onValueChange = [this] {
+        audioProcessor.setF1Gain();
+    };
     // F2 frequency
     f2FreqAttach = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>
         (audioProcessor.apvts, F2_FREQ_ID, f2FreqSlider);
@@ -229,7 +246,9 @@ FormantSynthAudioProcessorEditor::FormantSynthAudioProcessorEditor (FormantSynth
     f2FreqSlider.setLookAndFeel(&filterLookAndFeel);
     f2FreqSlider.setRange(100.0, 5000.0);
     f2FreqSlider.setValue(800.0);
-
+    f2FreqSlider.onValueChange = [this] {
+        audioProcessor.setF2Freq();
+    };
     // F2 bandwidth
     f2BandwidthAttach = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>
         (audioProcessor.apvts, F2_BW_ID, f2BandwidthSlider);
@@ -238,7 +257,9 @@ FormantSynthAudioProcessorEditor::FormantSynthAudioProcessorEditor (FormantSynth
     f2BandwidthSlider.setLookAndFeel(&filterLookAndFeel);
     f2BandwidthSlider.setRange(0.0, 1000.0);
     f2BandwidthSlider.setValue(80.0);
-
+    f2BandwidthSlider.onValueChange = [this] {
+        audioProcessor.setF2Bandwidth();
+    };
     // F2 gain
     f2GainAttach = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>
         (audioProcessor.apvts, F2_GAIN_ID, f2GainSlider);
@@ -247,7 +268,9 @@ FormantSynthAudioProcessorEditor::FormantSynthAudioProcessorEditor (FormantSynth
     f2GainSlider.setLookAndFeel(&filterLookAndFeel);
     f2GainSlider.setRange(0.0, 1.0);
     f2GainSlider.setValue(1.0);
-    
+    f2GainSlider.onValueChange = [this] {
+        audioProcessor.setF2Gain();
+    };
     // F3 frequency
     f3FreqAttach = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>
         (audioProcessor.apvts, F3_FREQ_ID, f3FreqSlider);
@@ -256,7 +279,9 @@ FormantSynthAudioProcessorEditor::FormantSynthAudioProcessorEditor (FormantSynth
     f3FreqSlider.setLookAndFeel(&filterLookAndFeel);
     f3FreqSlider.setRange(100.0, 5000.0);
     f3FreqSlider.setValue(800.0);
-
+    f3FreqSlider.onValueChange = [this] {
+        audioProcessor.setF3Freq();
+    };
     // F3 bandwidth
     f3BandwidthAttach = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>
         (audioProcessor.apvts, F3_BW_ID, f3BandwidthSlider);
@@ -265,7 +290,9 @@ FormantSynthAudioProcessorEditor::FormantSynthAudioProcessorEditor (FormantSynth
     f3BandwidthSlider.setLookAndFeel(&filterLookAndFeel);
     f3BandwidthSlider.setRange(0.0, 1000.0);
     f3BandwidthSlider.setValue(80.0);
-
+    f3BandwidthSlider.onValueChange = [this] {
+        audioProcessor.setF3Bandwidth();
+    };
     // F3 gain
     f3GainAttach = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>
         (audioProcessor.apvts, F3_GAIN_ID, f3GainSlider);
@@ -274,7 +301,9 @@ FormantSynthAudioProcessorEditor::FormantSynthAudioProcessorEditor (FormantSynth
     f3GainSlider.setLookAndFeel(&filterLookAndFeel);
     f3GainSlider.setRange(0.0, 1.0);
     f3GainSlider.setValue(1.0);
-
+    f3GainSlider.onValueChange = [this] {
+        audioProcessor.setF3Gain();
+    };
     // F4 frequency
     f4FreqAttach = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>
         (audioProcessor.apvts, F4_FREQ_ID, f4FreqSlider);
@@ -283,7 +312,9 @@ FormantSynthAudioProcessorEditor::FormantSynthAudioProcessorEditor (FormantSynth
     f4FreqSlider.setLookAndFeel(&filterLookAndFeel);
     f4FreqSlider.setRange(100.0, 5000.0);
     f4FreqSlider.setValue(800.0);
-
+    f4FreqSlider.onValueChange = [this] {
+        audioProcessor.setF4Freq();
+    };
     // F4 bandwidth
     f4BandwidthAttach = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>
         (audioProcessor.apvts, F4_BW_ID, f4BandwidthSlider);
@@ -292,7 +323,9 @@ FormantSynthAudioProcessorEditor::FormantSynthAudioProcessorEditor (FormantSynth
     f4BandwidthSlider.setLookAndFeel(&filterLookAndFeel);
     f4BandwidthSlider.setRange(0.0, 1000.0);
     f4BandwidthSlider.setValue(80.0);
-
+    f4BandwidthSlider.onValueChange = [this] {
+        audioProcessor.setF4Bandwidth();
+    };
     // F4 gain
     f4GainAttach = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>
         (audioProcessor.apvts, F4_GAIN_ID, f4GainSlider);
@@ -301,7 +334,9 @@ FormantSynthAudioProcessorEditor::FormantSynthAudioProcessorEditor (FormantSynth
     f4GainSlider.setLookAndFeel(&filterLookAndFeel);
     f4GainSlider.setRange(0.0, 1.0);
     f4GainSlider.setValue(1.0);
-
+    f4GainSlider.onValueChange = [this] {
+        audioProcessor.setF4Gain();
+    };
     // F5 frequency
     f5FreqAttach = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>
         (audioProcessor.apvts, F5_FREQ_ID, f5FreqSlider);
@@ -310,7 +345,9 @@ FormantSynthAudioProcessorEditor::FormantSynthAudioProcessorEditor (FormantSynth
     f5FreqSlider.setLookAndFeel(&filterLookAndFeel);
     f5FreqSlider.setRange(100.0, 5000.0);
     f5FreqSlider.setValue(800.0);
-
+    f5FreqSlider.onValueChange = [this] {
+        audioProcessor.setF5Freq();
+    };
     // F5 bandwidth
     f5BandwidthAttach = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>
         (audioProcessor.apvts, F5_BW_ID, f5BandwidthSlider);
@@ -319,7 +356,9 @@ FormantSynthAudioProcessorEditor::FormantSynthAudioProcessorEditor (FormantSynth
     f5BandwidthSlider.setLookAndFeel(&filterLookAndFeel);
     f5BandwidthSlider.setRange(0.0, 1000.0);
     f5BandwidthSlider.setValue(80.0);
-
+    f5BandwidthSlider.onValueChange = [this] {
+        audioProcessor.setF5Bandwidth();
+    };
     // F5 gain
     f5GainAttach = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>
         (audioProcessor.apvts, F5_GAIN_ID, f5GainSlider);
@@ -328,7 +367,9 @@ FormantSynthAudioProcessorEditor::FormantSynthAudioProcessorEditor (FormantSynth
     f5GainSlider.setLookAndFeel(&filterLookAndFeel);
     f5GainSlider.setRange(0.0, 1.0);
     f5GainSlider.setValue(1.0);
-
+    f5GainSlider.onValueChange = [this] {
+        audioProcessor.setF5Gain();
+    };
     // Voice envelope label
     addAndMakeVisible(&voiceEnvelopeLabel);
     voiceEnvelopeLabel.setText("Voice", juce::dontSendNotification);
@@ -343,7 +384,9 @@ FormantSynthAudioProcessorEditor::FormantSynthAudioProcessorEditor (FormantSynth
     voiceAttackSlider.setLookAndFeel(&sourceLookAndFeel);
     voiceAttackSlider.setRange(0.0, 2.0);
     voiceAttackSlider.setValue(0.05);
-    
+    voiceAttackSlider.onValueChange = [this] {
+        audioProcessor.setVoiceAttack();
+    };
     addAndMakeVisible(&voiceAttackLabel);
     voiceAttackLabel.setText("A", juce::dontSendNotification);
     voiceAttackLabel.attachToComponent(&voiceAttackSlider, false);
@@ -358,7 +401,9 @@ FormantSynthAudioProcessorEditor::FormantSynthAudioProcessorEditor (FormantSynth
     voiceDecaySlider.setLookAndFeel(&sourceLookAndFeel);
     voiceDecaySlider.setRange(0.0, 2.0);
     voiceDecaySlider.setValue(0.05);
-    
+    voiceDecaySlider.onValueChange = [this] {
+        audioProcessor.setVoiceDecay();
+    };
     addAndMakeVisible(&voiceDecayLabel);
     voiceDecayLabel.setText("D", juce::dontSendNotification);
     voiceDecayLabel.attachToComponent(&voiceDecaySlider, false);
@@ -373,7 +418,9 @@ FormantSynthAudioProcessorEditor::FormantSynthAudioProcessorEditor (FormantSynth
     voiceSustainSlider.setLookAndFeel(&sourceLookAndFeel);
     voiceSustainSlider.setRange(0.0, 1.0);
     voiceSustainSlider.setValue(1.0);
-    
+    voiceSustainSlider.onValueChange = [this] {
+        audioProcessor.setVoiceSustain();
+    };
     addAndMakeVisible(&voiceSustainLabel);
     voiceSustainLabel.setText("S", juce::dontSendNotification);
     voiceSustainLabel.attachToComponent(&voiceSustainSlider, false);
@@ -388,7 +435,9 @@ FormantSynthAudioProcessorEditor::FormantSynthAudioProcessorEditor (FormantSynth
     voiceReleaseSlider.setLookAndFeel(&sourceLookAndFeel);
     voiceReleaseSlider.setRange(0.0, 4.0);
     voiceReleaseSlider.setValue(1.0);
-    
+    voiceReleaseSlider.onValueChange = [this] {
+        audioProcessor.setVoiceRelease();
+    };
     addAndMakeVisible(&voiceReleaseLabel);
     voiceReleaseLabel.setText("R", juce::dontSendNotification);
     voiceReleaseLabel.attachToComponent(&voiceReleaseSlider, false);
@@ -408,7 +457,9 @@ FormantSynthAudioProcessorEditor::FormantSynthAudioProcessorEditor (FormantSynth
     fricativeAttackSlider.setLookAndFeel(&fricativeLookAndFeel);
     fricativeAttackSlider.setRange(0.0, 2.0);
     fricativeAttackSlider.setValue(0.01);
-    
+    fricativeAttackSlider.onValueChange = [this] {
+        audioProcessor.setFricativeAttack();
+    };
     addAndMakeVisible(&fricativeAttackLabel);
     fricativeAttackLabel.setText("A", juce::dontSendNotification);
     fricativeAttackLabel.attachToComponent(&fricativeAttackSlider, false);
@@ -423,7 +474,9 @@ FormantSynthAudioProcessorEditor::FormantSynthAudioProcessorEditor (FormantSynth
     fricativeDecaySlider.setLookAndFeel(&fricativeLookAndFeel);
     fricativeDecaySlider.setRange(0.0, 2.0);
     fricativeDecaySlider.setValue(0.05);
-    
+    fricativeDecaySlider.onValueChange = [this] {
+        audioProcessor.setFricativeDecay();
+    };
     addAndMakeVisible(&fricativeDecayLabel);
     fricativeDecayLabel.setText("D", juce::dontSendNotification);
     fricativeDecayLabel.attachToComponent(&fricativeDecaySlider, false);
@@ -438,7 +491,9 @@ FormantSynthAudioProcessorEditor::FormantSynthAudioProcessorEditor (FormantSynth
     fricativeSustainSlider.setLookAndFeel(&fricativeLookAndFeel);
     fricativeSustainSlider.setRange(0.0, 1.0);
     fricativeSustainSlider.setValue(0.0);
-    
+    fricativeSustainSlider.onValueChange = [this] {
+        audioProcessor.setFricativeSustain();
+    };
     addAndMakeVisible(&fricativeSustainLabel);
     fricativeSustainLabel.setText("S", juce::dontSendNotification);
     fricativeSustainLabel.attachToComponent(&fricativeSustainSlider, false);
@@ -453,7 +508,9 @@ FormantSynthAudioProcessorEditor::FormantSynthAudioProcessorEditor (FormantSynth
     fricativeReleaseSlider.setLookAndFeel(&fricativeLookAndFeel);
     fricativeReleaseSlider.setRange(0.0, 4.0);
     fricativeReleaseSlider.setValue(1.0);
-    
+    fricativeReleaseSlider.onValueChange = [this] {
+        audioProcessor.setFricativeRelease();
+    };
     addAndMakeVisible(&fricativeReleaseLabel);
     fricativeReleaseLabel.setText("R", juce::dontSendNotification);
     fricativeReleaseLabel.attachToComponent(&fricativeReleaseSlider, false);
@@ -472,7 +529,9 @@ FormantSynthAudioProcessorEditor::FormantSynthAudioProcessorEditor (FormantSynth
     vibratoFrequencySlider.setTextBoxStyle(juce::Slider::NoTextBox, true, 0, 0);
     vibratoFrequencySlider.setRange(0.0, 8.0);
     vibratoFrequencySlider.setValue(5.0);
-    
+    vibratoFrequencySlider.onValueChange = [this] {
+        audioProcessor.setVibratoFrequency();
+    };
     addAndMakeVisible(&vibratoFrequencyLabel);
     vibratoFrequencyLabel.setText("Freq", juce::dontSendNotification);
     vibratoFrequencyLabel.attachToComponent(&vibratoFrequencySlider, false);
@@ -486,7 +545,9 @@ FormantSynthAudioProcessorEditor::FormantSynthAudioProcessorEditor (FormantSynth
     vibratoAttackSlider.setTextBoxStyle(juce::Slider::NoTextBox, true, 0, 0);
     vibratoAttackSlider.setRange(0.0, 6.0);
     vibratoAttackSlider.setValue(1.0);
-    
+    vibratoAttackSlider.onValueChange = [this] {
+        audioProcessor.setVibratoAttack();
+    };
     addAndMakeVisible(&vibratoAttackLabel);
     vibratoAttackLabel.setText("A", juce::dontSendNotification);
     vibratoAttackLabel.attachToComponent(&vibratoAttackSlider, false);
@@ -500,7 +561,9 @@ FormantSynthAudioProcessorEditor::FormantSynthAudioProcessorEditor (FormantSynth
     vibratoSustainSlider.setTextBoxStyle(juce::Slider::NoTextBox, true, 0, 0);
     vibratoSustainSlider.setRange(0.0, 1.0);
     vibratoSustainSlider.setValue(1.0);
-    
+    vibratoSustainSlider.onValueChange = [this] {
+        audioProcessor.setVibratoSustain();
+    };
     addAndMakeVisible(&vibratoSustainLabel);
     vibratoSustainLabel.setText("S", juce::dontSendNotification);
     vibratoSustainLabel.attachToComponent(&vibratoSustainSlider, false);
@@ -514,7 +577,9 @@ FormantSynthAudioProcessorEditor::FormantSynthAudioProcessorEditor (FormantSynth
     vibratoReleaseSlider.setTextBoxStyle(juce::Slider::NoTextBox, true, 0, 0);
     vibratoReleaseSlider.setRange(0.0, 6.0);
     vibratoReleaseSlider.setValue(1.0);
-    
+    vibratoReleaseSlider.onValueChange = [this] {
+        audioProcessor.setVibratoRelease();
+    };
     addAndMakeVisible(&vibratoReleaseLabel);
     vibratoReleaseLabel.setText("R", juce::dontSendNotification);
     vibratoReleaseLabel.attachToComponent(&vibratoReleaseSlider, false);
@@ -528,7 +593,9 @@ FormantSynthAudioProcessorEditor::FormantSynthAudioProcessorEditor (FormantSynth
     fofGainSlider.setValue(1.0);
     fofGainSlider.setTextBoxStyle(juce::Slider::NoTextBox, true, 0, 0);
     fofGainSlider.setLookAndFeel(&mixerLookAndFeel);
-    
+    fofGainSlider.onValueChange = [this] {
+        audioProcessor.setFofGain();
+    };
     addAndMakeVisible(&fofGainLabel);
     fofGainLabel.setText("FOF Gain", juce::dontSendNotification);
     fofGainLabel.attachToComponent(&fofGainSlider, false);
@@ -542,7 +609,9 @@ FormantSynthAudioProcessorEditor::FormantSynthAudioProcessorEditor (FormantSynth
     bpGainSlider.setValue(1.0);
     bpGainSlider.setTextBoxStyle(juce::Slider::NoTextBox, true, 0, 0);
     bpGainSlider.setLookAndFeel(&mixerLookAndFeel);
-    
+    bpGainSlider.onValueChange = [this] {
+        audioProcessor.setBpGain();
+    };
     addAndMakeVisible(&bpGainLabel);
     bpGainLabel.setText("BP Gain", juce::dontSendNotification);
     bpGainLabel.attachToComponent(&bpGainSlider, false);
@@ -556,7 +625,9 @@ FormantSynthAudioProcessorEditor::FormantSynthAudioProcessorEditor (FormantSynth
     fricativeGainSlider.setValue(1.0);
     fricativeGainSlider.setTextBoxStyle(juce::Slider::NoTextBox, true, 0, 0);
     fricativeGainSlider.setLookAndFeel(&mixerLookAndFeel);
-    
+    fricativeGainSlider.onValueChange = [this] {
+        audioProcessor.setFricativeGain();
+    };
     addAndMakeVisible(&fricativeGainLabel);
     fricativeGainLabel.setText("Fricative Gain", juce::dontSendNotification);
     fricativeGainLabel.attachToComponent(&fricativeGainSlider, false);

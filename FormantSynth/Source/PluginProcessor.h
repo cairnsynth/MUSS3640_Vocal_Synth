@@ -103,53 +103,53 @@ public:
     uintptr_t monoVoiceId = 0;
 
     // Parameter control functions
-    void setBpSourceWave(int value);
-    void setBpSourcePw(float pw);
-    void setBpSourcePressure(float pressure);
-    void setBpSourceT0(float t0);
-    void setBpSourceTe(float te);
-    void setBpSourceNoise(float noise);
+    void setBpSourceWave();
+    void setBpSourcePw();
+    void setBpSourcePressure();
+    void setBpSourceT0();
+    void setBpSourceTe();
+    void setBpSourceNoise();
 
-    void setFricativeColour(float min, float max);
+    void setFricativeColour();
 
-    void setF1Freq(float freq);
-    void setF1Bandwidth(float bandwidth);
-    void setF1Gain(float gain);
+    void setF1Freq();
+    void setF1Bandwidth();
+    void setF1Gain();
 
-    void setF2Freq(float freq);
-    void setF2Bandwidth(float bandwidth);
-    void setF2Gain(float gain);
+    void setF2Freq();
+    void setF2Bandwidth();
+    void setF2Gain();
 
-    void setF3Freq(float freq);
-    void setF3Bandwidth(float bandwidth);
-    void setF3Gain(float gain);
+    void setF3Freq();
+    void setF3Bandwidth();
+    void setF3Gain();
 
-    void setF4Freq(float freq);
-    void setF4Bandwidth(float bandwidth);
-    void setF4Gain(float gain);
+    void setF4Freq();
+    void setF4Bandwidth();
+    void setF4Gain();
 
-    void setF5Freq(float freq);
-    void setF5Bandwidth(float bandwidth);
-    void setF5Gain(float gain);
+    void setF5Freq();
+    void setF5Bandwidth();
+    void setF5Gain();
 
-    void setVoiceAttack(float attack);
-    void setVoiceDecay(float decay);
-    void setVoiceSustain(float sustain);
-    void setVoiceRelease(float release);
+    void setVoiceAttack();
+    void setVoiceDecay();
+    void setVoiceSustain();
+    void setVoiceRelease();
 
-    void setFricativeAttack(float attack);
-    void setFricativeDecay(float decay);
-    void setFricativeSustain(float sustain);
-    void setFricativeRelease(float release);
+    void setFricativeAttack();
+    void setFricativeDecay();
+    void setFricativeSustain();
+    void setFricativeRelease();
 
-    void setVibratoFrequency(float frequency);
-    void setVibratoAttack(float attack);
-    void setVibratoSustain(float sustain);
-    void setVibratoRelease(float release);
+    void setVibratoFrequency();
+    void setVibratoAttack();
+    void setVibratoSustain();
+    void setVibratoRelease();
 
-    void setFofGain(float gain);
-    void setBpGain(float gain);
-    void setFricativeGain(float gain);
+    void setFofGain();
+    void setBpGain();
+    void setFricativeGain();
 
     void setPhoneme(std::vector<Phoneme> pVector, float interpolationVal);
     Phoneme interpolatePhonemes(Phoneme p1, Phoneme p2, float val);
@@ -160,7 +160,7 @@ public:
     // Value Tree
     juce::AudioProcessorValueTreeState apvts;
     juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
-
+    void initialisePhonemes();
     // File Parsing
     std::vector<Phoneme> phonemeVector;
     
