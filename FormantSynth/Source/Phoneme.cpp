@@ -76,7 +76,7 @@ Phoneme::Formant Phoneme::getFormant(int formant)
 
 void Phoneme::setFricativeGain(float gain)
 {
-    if (0.0f < gain < 1.0f) { _fricativeGain = gain; }
+    if (0.0f <= gain <= 1.0f) { _fricativeGain = gain; }
     else if (gain > 1.0f) { _fricativeGain = 1.0; }
     else { _fricativeGain = 0.0f; }
 }

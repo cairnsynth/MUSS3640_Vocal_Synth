@@ -4,13 +4,7 @@
 //==============================================================================
 FormantSynthAudioProcessor::FormantSynthAudioProcessor()
 #ifndef JucePlugin_PreferredChannelConfigurations
-    : AudioProcessor(BusesProperties()
-        #if ! JucePlugin_IsMidiEffect
-        #if ! JucePlugin_IsSynth
-                .withInput("Input", juce::AudioChannelSet::stereo(), true)
-        #endif
-                .withOutput("Output", juce::AudioChannelSet::stereo(), true)
-        #endif
+    : AudioProcessor(BusesProperties().withOutput("Output", juce::AudioChannelSet::stereo(), true)
             ),
 apvts(*this, nullptr, "PARAMETERS", createParameterLayout())
 #endif
@@ -44,9 +38,15 @@ juce::AudioProcessorValueTreeState::ParameterLayout FormantSynthAudioProcessor::
     params.push_back(std::move(sourceNoiseParam));
     auto monoParam = std::make_unique<juce::AudioParameterBool>(MONO_ID, "Mono/Poly", true);
     params.push_back(std::move(monoParam));
+    auto fricativeLowCutParam = std::make_unique<juce::AudioParameterFloat>(FRICA_LOWCUT_ID, "Fricative Low Cut", 20.0f, 20000.0f, 20.0f);
+    params.push_back(std::move(fricativeLowCutParam));
+    auto fricativeHighCutParam = std::make_unique<juce::AudioParameterFloat>(FRICA_HIGHCUT_ID, "Fricative Low Cut", 20.0f, 20000.0f, 20000.0f);
+    params.push_back(std::move(fricativeHighCutParam));
     // Filter parameter creation
-    auto phonemeParam = std::make_unique<juce::AudioParameterFloat>(PHONEME_ID, "Phoneme", 0.0, 10.0, 0.0);
+    auto phonemeParam = std::make_unique<juce::AudioParameterFloat>(PHONEME_ID, "Phoneme", 0.0f, 10.0f, 0.0f);
     params.push_back(std::move(phonemeParam));
+    auto formantShiftParam = std::make_unique<juce::AudioParameterFloat>(FORMANT_SHIFT_ID, "Formant Shift", -500.0f, 500.0f, 0.0f);
+    params.push_back(std::move(formantShiftParam));
 
     auto f1FreqParam = std::make_unique<juce::AudioParameterFloat>(F1_FREQ_ID, "Formant 1 Frequency", 20.0f, 20000.0f, 800.0f);
     params.push_back(std::move(f1FreqParam));
@@ -126,8 +126,8 @@ void FormantSynthAudioProcessor::initialisePhonemes()
     Phoneme defaultA;
     defaultA.setFormant(0, 600, 60, 1.0);
     defaultA.setFormant(1, 1040, 70, 0.199526);
-    defaultA.setFormant(2, 2250, 110, 0.199526);
-    defaultA.setFormant(3, 2450, 120, 0.199526);
+    defaultA.setFormant(2, 2250, 110, 0.1259);
+    defaultA.setFormant(3, 2450, 120, 0.1259);
     defaultA.setFormant(4, 2750, 130, 0.01);
     defaultA.setName("A");
     Phoneme defaultE;
@@ -266,7 +266,6 @@ bool FormantSynthAudioProcessor::isBusesLayoutSupported (const BusesLayout& layo
 
 void FormantSynthAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
-    //updateDspFromParameters();
 }
 
 //==============================================================================
@@ -303,38 +302,6 @@ juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 
 //==============================================================================
 //End JUCE generated Code
-void FormantSynthAudioProcessor::updateDspFromParameters()
-{
-    
-    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/source/bpSourcePW", *apvts.getRawParameterValue(SOURCE_PW_ID));
-    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/source/Pressure", *apvts.getRawParameterValue(SOURCE_PRESSURE_ID));
-    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/source/T0", *apvts.getRawParameterValue(SOURCE_T0_ID));
-    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/source/Te", *apvts.getRawParameterValue(SOURCE_TE_ID));
-    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/source/noise", *apvts.getRawParameterValue(SOURCE_NOISE_ID));
-
-    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/vibrato/vibratoFreq", *apvts.getRawParameterValue(VIBRATO_FREQUENCY_ID));
-    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/vibrato/vibratoAttack", *apvts.getRawParameterValue(VIBRATO_ATTACK_ID));
-    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/vibrato/vibratoSustain", *apvts.getRawParameterValue(VIBRATO_SUSTAIN_ID));
-    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/vibrato/vibratoRelease", *apvts.getRawParameterValue(VIBRATO_RELEASE_ID));
-
-    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/envelope/voiceAttack", *apvts.getRawParameterValue(VOICE_ATTACK_ID));
-    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/envelope/voiceDecay", *apvts.getRawParameterValue(VOICE_DECAY_ID));
-    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/envelope/voiceSustain", *apvts.getRawParameterValue(VOICE_SUSTAIN_ID));
-    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/envelope/voiceRelease", *apvts.getRawParameterValue(VOICE_RELEASE_ID));
-
-    //dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/fricative/noiseColourHigh", *apvts.getRawParameterValue(FRICA_HIGHCUT_ID));
-    //dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/fricative/noiseColourLow", *apvts.getRawParameterValue(FRICA_LOWCUT_ID));
-    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/fricative/noiseAttack", *apvts.getRawParameterValue(FRICA_ATTACK_ID));
-    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/fricative/noiseDecay", *apvts.getRawParameterValue(FRICA_DECAY_ID));
-    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/fricative/noiseSustain", *apvts.getRawParameterValue(FRICA_SUSTAIN_ID));
-    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/fricative/noiseRelease", *apvts.getRawParameterValue(FRICA_RELEASE_ID));
-
-    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/mixer/fofGain", *apvts.getRawParameterValue(FOF_GAIN_ID));
-    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/mixer/bpGain", *apvts.getRawParameterValue(BP_GAIN_ID));
-    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/mixer/fricativeGain", *apvts.getRawParameterValue(FRICA_GAIN_ID));
-
-    //setPhoneme(phonemeVector[*apvts.getRawParameterValue(MONO_ID)]);
-}
 
 void FormantSynthAudioProcessor::keyOn(int key, int velocity)
 {
@@ -393,6 +360,16 @@ void FormantSynthAudioProcessor::setBpSourceNoise()
 void FormantSynthAudioProcessor::setFricativeColour()
 {
     dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/fricative/noiseColourLow", *apvts.getRawParameterValue(FRICA_LOWCUT_ID));
+    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/fricative/noiseColourHigh", *apvts.getRawParameterValue(FRICA_HIGHCUT_ID));
+}
+
+void FormantSynthAudioProcessor::setFricativeLowCut()
+{
+    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/fricative/noiseColourLow", *apvts.getRawParameterValue(FRICA_LOWCUT_ID));
+}
+
+void FormantSynthAudioProcessor::setFricativeHighCut()
+{
     dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/fricative/noiseColourHigh", *apvts.getRawParameterValue(FRICA_HIGHCUT_ID));
 }
 
@@ -532,21 +509,26 @@ float FormantSynthAudioProcessor::getCpuLoad()
     return dsp.getCPULoad();
 }
 
+void FormantSynthAudioProcessor::addPhonemeToVector(Phoneme p)
+{
+    phonemeVector.push_back(std::move(p));
+}
+
 void FormantSynthAudioProcessor::setPhoneme(std::vector<Phoneme> pVector, float val)
 {
     int nPhonemes = pVector.size();
     float interpolationVal = val / apvts.getParameterRange(PHONEME_ID).end;
 
-    if (nPhonemes == 1) {
-        DBG("1 phoneme");
-    }
+    /*if (nPhonemes == 1) {
+        interpolatedPhoneme = interpola
+    }*/
     float phonemeSpacing = interpolationVal / (nPhonemes-1);
     float scaledInterpolationValue = interpolationVal * (nPhonemes-1);
     float interpolationOff = 0;
     float normalisedInterpolationValue = std::modf(scaledInterpolationValue, &interpolationOff);
     int integralOffset = static_cast<int>(interpolationOff);
     if (integralOffset == nPhonemes - 1) {
-        interpolatedPhoneme = phonemeVector[integralOffset];
+        interpolatedPhoneme = interpolatePhonemes(phonemeVector[integralOffset], phonemeVector[integralOffset], 0);
     }
     else {
         interpolatedPhoneme = interpolatePhonemes(phonemeVector[integralOffset], phonemeVector[integralOffset + 1], normalisedInterpolationValue);
@@ -567,6 +549,13 @@ void FormantSynthAudioProcessor::setPhoneme(std::vector<Phoneme> pVector, float 
     setF5Freq();
     setF5Bandwidth();
     setF5Gain();
+    setFricativeGain();
+    setFricativeLowCut();
+    setFricativeHighCut();
+    setFricativeAttack();
+    setFricativeDecay();
+    setFricativeSustain();
+    setFricativeRelease();
 }
 
 Phoneme FormantSynthAudioProcessor::interpolatePhonemes(Phoneme p1, Phoneme p2, float val)
@@ -579,7 +568,7 @@ Phoneme FormantSynthAudioProcessor::interpolatePhonemes(Phoneme p1, Phoneme p2, 
         tempPhoneme.setName(p1.getName() + "->" + p2.getName());
     }
     for (int i = 0; i < 5; i++) {
-        tempPhoneme.setFrequency(i, lerp(p1.getFrequency(i), p2.getFrequency(i), val));
+        tempPhoneme.setFrequency(i, (lerp(p1.getFrequency(i), p2.getFrequency(i), val) + *apvts.getRawParameterValue(FORMANT_SHIFT_ID)));
         tempPhoneme.setBandwidth(i, lerp(p1.getBandwidth(i), p2.getBandwidth(i), val));
         tempPhoneme.setGain(i, lerp(p1.getGain(i), p2.getGain(i), val));
     }
@@ -590,11 +579,85 @@ Phoneme FormantSynthAudioProcessor::interpolatePhonemes(Phoneme p1, Phoneme p2, 
     tempPhoneme.setFricativeDecay(lerp(p1.getFricativeDecay(), p2.getFricativeDecay(), val));
     tempPhoneme.setFricativeSustain(lerp(p1.getFricativeSustain(), p2.getFricativeSustain(), val));
     tempPhoneme.setFricativeRelease(lerp(p1.getFricativeRelease(), p2.getFricativeRelease(), val));
-
     return tempPhoneme;
 }
 
 float FormantSynthAudioProcessor::lerp(float a, float b, float t)
 {
     return (a + (t*(b - a)));
+}
+
+void FormantSynthAudioProcessor::loadButtonClicked()
+{
+    chooser = std::make_unique<juce::FileChooser>("Select Phoneme Data File...", juce::File{}, "*.xml");
+    auto chooserFlags = juce::FileBrowserComponent::openMode
+        | juce::FileBrowserComponent::canSelectFiles;
+    
+    chooser->launchAsync(chooserFlags, [this](const juce::FileChooser& fc)
+        {
+            auto file = fc.getResult();
+            if (file != juce::File{}) {
+                auto xml = juce::parseXML(file);
+                if (xml->hasTagName("PHONEME_DATA")) {
+                    phonemeVector.clear();
+                    for (auto* phoneme : xml->getChildIterator()) {
+                        Phoneme tp;
+                        juce::String tpName = phoneme->getTagName();
+                        tp.setName(tpName.toStdString());
+                        //DBG(phoneme->getTagName());
+                        for (auto* f : phoneme->getChildIterator()) {
+                            if (f->hasTagName("F1")) {
+                                //DBG("F1 found");
+                                tp.setFrequency(0, f->getDoubleAttribute("Freq"));
+                                tp.setBandwidth(0, f->getDoubleAttribute("Bandwidth"));
+                                tp.setGain(0, f->getDoubleAttribute("Gain"));
+                            }
+                            if (f->hasTagName("F2")) {
+                                //DBG("F2 found");
+                                tp.setFrequency(1, f->getDoubleAttribute("Freq"));
+                                tp.setBandwidth(1, f->getDoubleAttribute("Bandwidth"));
+                                tp.setGain(1, f->getDoubleAttribute("Gain"));
+                            }
+                            if (f->hasTagName("F3")) {
+                                //DBG("F3 found");
+                                tp.setFrequency(2, f->getDoubleAttribute("Freq"));
+                                tp.setBandwidth(2, f->getDoubleAttribute("Bandwidth"));
+                                tp.setGain(2, f->getDoubleAttribute("Gain"));
+                            }
+                            if (f->hasTagName("F4")) {
+                                //DBG("F4 found");
+                                tp.setFrequency(3, f->getDoubleAttribute("Freq"));
+                                tp.setBandwidth(3, f->getDoubleAttribute("Bandwidth"));
+                                tp.setGain(3, f->getDoubleAttribute("Gain"));
+                            }
+                            if (f->hasTagName("F5")) {
+                                //DBG("F5 found");
+                                tp.setFrequency(4, f->getDoubleAttribute("Freq"));
+                                tp.setBandwidth(4, f->getDoubleAttribute("Bandwidth"));
+                                tp.setGain(4, f->getDoubleAttribute("Gain"));
+                            }
+                            if (f->hasTagName("FRICATIVE")) {
+                                //DBG("Fricative found");
+                                tp.setFricativeGain(f->getDoubleAttribute("Gain"));
+                                //DBG(f->getDoubleAttribute("Gain"));
+                                //DBG(tp.getFricativeGain());
+                                tp.setFricativeColour(f->getDoubleAttribute("Lowcut"), f->getDoubleAttribute("Highcut"));
+                                //DBG(tp.getFricativeLow());
+                                //DBG(tp.getFricativeHigh());
+                                tp.setFricativeAttack(f->getDoubleAttribute("Attack"));
+                                //DBG(tp.getFricativeAttack());
+                                tp.setFricativeDecay(f->getDoubleAttribute("Decay"));
+                                //DBG(tp.getFricativeDecay());
+                                tp.setFricativeSustain(f->getDoubleAttribute("Sustain"));
+                                //DBG(tp.getFricativeSustain());
+                                tp.setFricativeRelease(f->getDoubleAttribute("Release"));
+                                //DBG(tp.getFricativeRelease());
+                            }  
+                        }
+                        phonemeVector.push_back(std::move(tp));
+                    }
+                }
+                
+            }
+        });
 }

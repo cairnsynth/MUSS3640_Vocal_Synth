@@ -15,6 +15,7 @@
 #define MONO_ID "monoSelect"
 
 #define PHONEME_ID "phoneme"
+#define FORMANT_SHIFT_ID "formantShift"
 #define F1_FREQ_ID "f1Freq"
 #define F1_GAIN_ID "f1Gain"
 #define F1_BW_ID "f1Bandwidth"
@@ -111,6 +112,8 @@ public:
     void setBpSourceNoise();
 
     void setFricativeColour();
+    void setFricativeLowCut();
+    void setFricativeHighCut();
 
     void setF1Freq();
     void setF1Bandwidth();
@@ -151,11 +154,16 @@ public:
     void setBpGain();
     void setFricativeGain();
 
+    void addPhonemeToVector(Phoneme p);
     void setPhoneme(std::vector<Phoneme> pVector, float interpolationVal);
     Phoneme interpolatePhonemes(Phoneme p1, Phoneme p2, float val);
     float lerp(float a, float b, float t);
 
     float getCpuLoad();
+
+    void loadButtonClicked();
+    std::unique_ptr<juce::FileChooser> chooser;
+    std::unique_ptr<juce::XmlDocument> xmlFile;
 
     // Value Tree
     juce::AudioProcessorValueTreeState apvts;
@@ -168,12 +176,6 @@ public:
 
 private:
     DspFaust dsp;  // Main DSP object
-
-    void updateDspFromParameters();
-
-    // Phonemes
-    
-
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (FormantSynthAudioProcessor)
 };

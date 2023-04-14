@@ -189,6 +189,32 @@ FormantSynthAudioProcessorEditor::FormantSynthAudioProcessorEditor (FormantSynth
         audioProcessor.setFricativeColour();
     };
 
+    // Fricative low cut slider
+    fricativeLowCutAttach = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>
+        (audioProcessor.apvts, FRICA_LOWCUT_ID, fricativeLowCutSlider);
+    addAndMakeVisible(&fricativeLowCutSlider);
+    fricativeLowCutSlider.setRange(audioProcessor.apvts.getParameterRange(FRICA_LOWCUT_ID).start, audioProcessor.apvts.getParameterRange(FRICA_LOWCUT_ID).end);
+    fricativeLowCutSlider.setValue(audioProcessor.apvts.getParameterRange(FRICA_LOWCUT_ID).start);
+    fricativeLowCutSlider.onValueChange = [this] {
+        if (fricativeHighCutSlider.getValue() < fricativeLowCutSlider.getValue()) {
+            fricativeHighCutSlider.setValue(fricativeLowCutSlider.getValue());
+        }
+        audioProcessor.setFricativeLowCut();
+    };
+
+    // Fricative high cut slider
+    fricativeHighCutAttach = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>
+        (audioProcessor.apvts, FRICA_HIGHCUT_ID, fricativeHighCutSlider);
+    addAndMakeVisible(&fricativeHighCutSlider);
+    fricativeHighCutSlider.setRange(audioProcessor.apvts.getParameterRange(FRICA_HIGHCUT_ID).start, audioProcessor.apvts.getParameterRange(FRICA_HIGHCUT_ID).end);
+    fricativeHighCutSlider.setValue(audioProcessor.apvts.getParameterRange(FRICA_HIGHCUT_ID).end);
+    fricativeHighCutSlider.onValueChange = [this] {
+        if (fricativeHighCutSlider.getValue() < fricativeLowCutSlider.getValue()) {
+            fricativeLowCutSlider.setValue(fricativeHighCutSlider.getValue());
+        }
+        audioProcessor.setFricativeHighCut();
+    };
+
     /*Filter*/
     // Phoneme slider
     phonemeAttach = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>
@@ -204,6 +230,34 @@ FormantSynthAudioProcessorEditor::FormantSynthAudioProcessorEditor (FormantSynth
     addAndMakeVisible(&phonemeLabel);
     phonemeLabel.setText("Phoneme", juce::dontSendNotification);
     phonemeLabel.attachToComponent(&phonemeSlider, false);
+
+    // Formant shift slider
+    formantShiftAttach = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>
+        (audioProcessor.apvts, FORMANT_SHIFT_ID, formantShiftSlider);
+    addAndMakeVisible(&formantShiftSlider);
+    formantShiftSlider.setRange(audioProcessor.apvts.getParameterRange(FORMANT_SHIFT_ID).start, audioProcessor.apvts.getParameterRange(FORMANT_SHIFT_ID).end);
+    formantShiftSlider.setValue(0.0f);
+    formantShiftSlider.onValueChange = [this] {
+        audioProcessor.setPhoneme(audioProcessor.phonemeVector, *audioProcessor.apvts.getRawParameterValue(PHONEME_ID));
+        updateFilterControls(audioProcessor.interpolatedPhoneme);
+    };
+    addAndMakeVisible(&formantShiftLabel);
+    formantShiftLabel.setText("Formant Shift", juce::dontSendNotification);
+    formantShiftLabel.attachToComponent(&formantShiftSlider, false);
+
+    // Add phoneme button
+    addAndMakeVisible(&addPhonemeButton);
+    addPhonemeButton.setButtonText("Add Phoneme");
+    addPhonemeButton.onClick = [this] {
+        audioProcessor.addPhonemeToVector(audioProcessor.interpolatedPhoneme);
+    };
+
+    // Load XML button
+    addAndMakeVisible(&loadXmlButton);
+    loadXmlButton.setButtonText("Load XML File");
+    loadXmlButton.onClick = [this] {
+        audioProcessor.loadButtonClicked();
+    };
 
     // F1 frequency
     f1FreqAttach = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>
@@ -301,6 +355,7 @@ FormantSynthAudioProcessorEditor::FormantSynthAudioProcessorEditor (FormantSynth
     f3GainSlider.setLookAndFeel(&filterLookAndFeel);
     f3GainSlider.setRange(0.0, 1.0);
     f3GainSlider.setValue(1.0);
+    f3GainSlider.setNumDecimalPlacesToDisplay(0);
     f3GainSlider.onValueChange = [this] {
         audioProcessor.setF3Gain();
     };
@@ -684,10 +739,12 @@ void FormantSynthAudioProcessorEditor::resized()
         juce::FlexItem(bpSourceNoiseLabel).withFlex(1, 1, sourceArea.getHeight() / 16).withMinWidth(50.0).withMinHeight(30.0).withWidth(sourceArea.getWidth() - objectBorder).withHeight(objectHeight),
         juce::FlexItem(bpSourceNoiseSlider).withFlex(1, 1, sourceArea.getHeight() / 16).withMinWidth(50.0).withMinHeight(30.0).withWidth(sourceArea.getWidth() - objectBorder).withHeight(objectHeight),
         juce::FlexItem(fricativeSourceLabel).withFlex(1, 1, sourceArea.getHeight() / 16).withMinWidth(50.0).withMinHeight(30.0).withWidth(sourceArea.getWidth() - objectBorder).withHeight(objectHeight),
-        juce::FlexItem(fricativeColourSlider).withFlex(1, 1, sourceArea.getHeight() / 16).withMinWidth(50.0).withMinHeight(30.0).withWidth(sourceArea.getWidth() - objectBorder).withHeight(objectHeight) });
+        juce::FlexItem(fricativeLowCutSlider).withFlex(1, 1, sourceArea.getHeight() / 16).withMinWidth(50.0).withMinHeight(30.0).withWidth(sourceArea.getWidth() - objectBorder).withHeight(objectHeight),
+        juce::FlexItem(fricativeHighCutSlider).withFlex(1, 1, sourceArea.getHeight() / 16).withMinWidth(50.0).withMinHeight(30.0).withWidth(sourceArea.getWidth() - objectBorder).withHeight(objectHeight) });
+
     sourceFB.performLayout(sourceArea.reduced(objectBorder).toFloat());
 
-    phonemeSlider.setBounds(filterArea.removeFromBottom(100).removeFromTop(100).reduced(objectBorder));
+    
 
     keyboardComponent.setBounds(keyboardArea);
     headerWindow.setBounds(headerArea.reduced(windowBorder));
@@ -699,6 +756,10 @@ void FormantSynthAudioProcessorEditor::resized()
 
     auto envelopeHeaderArea = envelopeArea.removeFromTop(headerHeight);
 
+    phonemeSlider.setBounds(filterArea.removeFromBottom(100).reduced(objectBorder));
+    formantShiftSlider.setBounds(filterArea.removeFromBottom(100).reduced(objectBorder));
+    addPhonemeButton.setBounds(filterArea.removeFromTop(50).removeFromLeft(filterArea.getWidth()/2).reduced(objectBorder));
+    loadXmlButton.setBounds(filterArea);
 
     auto f1Area = formantArea.removeFromLeft(formantArea.getWidth() / 5);
     f1FreqSlider.setBounds(f1Area.removeFromTop(f1Area.getHeight() / 3).reduced(0));
@@ -811,13 +872,6 @@ void FormantSynthAudioProcessorEditor::enableSourceGui(int sourceWave)
     }
 }
 
-void FormantSynthAudioProcessorEditor::initSlider(juce::Slider& s, juce::AudioProcessorValueTreeState::SliderAttachment& a, juce::String paramId)
-{
-    /*
-    a = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>
-        (audioProcessor.apvts, paramId, s);
-    */
-}
 
 void FormantSynthAudioProcessorEditor::updateFilterControls(Phoneme p)
 {
@@ -842,8 +896,11 @@ void FormantSynthAudioProcessorEditor::updateFilterControls(Phoneme p)
     f5GainSlider.setValue(p.getGain(4));
 
     fricativeGainSlider.setValue(p.getFricativeGain());
+    fricativeLowCutSlider.setValue(p.getFricativeLow());
+    fricativeHighCutSlider.setValue(p.getFricativeHigh());
     fricativeAttackSlider.setValue(p.getFricativeAttack());
     fricativeDecaySlider.setValue(p.getFricativeDecay());
     fricativeSustainSlider.setValue(p.getFricativeSustain());
     fricativeReleaseSlider.setValue(p.getFricativeRelease());
 }
+

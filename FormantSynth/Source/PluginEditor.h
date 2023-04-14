@@ -32,7 +32,7 @@ private:
 
     void enableSourceGui(int sourceWave);
 
-    void initSlider(juce::Slider &s, juce::AudioProcessorValueTreeState::SliderAttachment &a, juce::String paramId);
+    
 
     juce::MidiKeyboardState keyboardState;
     juce::MidiKeyboardComponent keyboardComponent;
@@ -73,12 +73,23 @@ private:
     juce::Label bpSourceNoiseLabel;
     juce::Label fricativeSourceLabel;
     juce::Slider fricativeColourSlider;
+    juce::Slider fricativeLowCutSlider;
+    juce::Slider fricativeHighCutSlider;
     juce::ToggleButton monoButton;
     
 
     // Filter
     juce::Label phonemeLabel;
     juce::Slider phonemeSlider;
+    juce::Label formantShiftLabel;
+    juce::Slider formantShiftSlider;
+
+    juce::TextButton addPhonemeButton;
+
+    juce::TextButton loadXmlButton;
+    std::unique_ptr<juce::XmlElement> fileData;
+    juce::XmlElement* columnList = nullptr;
+    juce::XmlElement* dataList = nullptr;
 
     juce::Slider f1FreqSlider;
     juce::Slider f1BandwidthSlider;
@@ -154,6 +165,7 @@ private:
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> fricativeHighCutAttach;
 
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> phonemeAttach;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> formantShiftAttach;
 
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> f1FreqAttach;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> f1BandwidthAttach;
