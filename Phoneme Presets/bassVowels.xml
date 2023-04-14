@@ -1,0 +1,43 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<PHONEME_DATA>
+  <A>
+    <F1 Freq="600" Bandwidth="60" Gain="1.0" />
+    <F2 Freq="1040" Bandwidth="70" Gain="0.1995" />
+    <F3 Freq="2250" Bandwidth="110" Gain="0.1259" />
+    <F4 Freq="2450" Bandwidth="120" Gain="0.1259" />
+    <F5 Freq="2750" Bandwidth="130" Gain="0.01" />
+    <FRICATIVE Gain="0" Lowcut="20.0" Highcut="20000.0" Attack="0.1" Decay="0.5" Sustain="0.5" Release="1.0" />
+  </A>
+  <E>
+    <F1 Freq="400" Bandwidth="40" Gain="1.0" />
+    <F2 Freq="1620" Bandwidth="80" Gain="0.063096"></F2>
+    <F3 Freq="2400" Bandwidth="120" Gain="0.125893" />
+    <F4 Freq="3800" Bandwidth="120" Gain="0.063096" />
+    <F5 Freq="3150" Bandwidth="120" Gain="0.015849" />
+    <FRICATIVE Gain="0" Lowcut="20.0" Highcut="20000.0" Attack="0.1" Decay="0.5" Sustain="0.5" Release="1.0" />
+  </E>
+  <I>
+    <F1 Freq="250" Bandwidth="60" Gain="1.0" />
+    <F2 Freq="1740" Bandwidth="90" Gain="0.001" />
+    <F3 Freq="2600" Bandwidth="100" Gain="0.025119" />
+    <F4 Freq="3050" Bandwidth="120" Gain="0.00631" />
+    <F5 Freq="3340" Bandwidth="120" Gain="0.001585" />
+    <FRICATIVE Gain="0" Lowcut="20.0" Highcut="20000.0" Attack="0.1" Decay="0.5" Sustain="0.5" Release="1.0" />
+  </I>
+  <O>
+    <F1 Freq="400" Bandwidth="40" Gain="1.0" />
+    <F2 Freq="750" Bandwidth="80" Gain="0.079433" />
+    <F3 Freq="2400" Bandwidth="100" Gain="0.007943" />
+    <F4 Freq="2600" Bandwidth="120" Gain="0.01" />
+    <F5 Freq="2900" Bandwidth="120" Gain="0.0001" />
+    <FRICATIVE Gain="0" Lowcut="20.0" Highcut="20000.0" Attack="0.1" Decay="0.5" Sustain="0.5" Release="1.0" />
+  </O>
+  <U>
+    <F1 Freq="350" Bandwidth="40" Gain="1.0" />
+    <F2 Freq="600" Bandwidth="80" Gain="0.01" />
+    <F3 Freq="2400" Bandwidth="100" Gain="0.000631"></F3>
+    <F4 Freq="2675" Bandwidth="120" Gain="0.001585" />
+    <F5 Freq="2950" Bandwidth="120" Gain="0.001585" />
+    <FRICATIVE Gain="0" Lowcut="20.0" Highcut="20000.0" Attack="0.1" Decay="0.5" Sustain="0.5" Release="1.0" />
+  </U>
+</PHONEME_DATA>
