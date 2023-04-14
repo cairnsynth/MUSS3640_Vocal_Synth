@@ -1,0 +1,44 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!--Source: CSound, https://csound.com/docs/manual/MiscFormants.html-->
+<PHONEME_DATA Name="Countertenor Vowels">
+  <A>
+    <F1 Freq="660" Bandwidth="80" Gain="1.0" />
+    <F2 Freq="1120" Bandwidth="90" Gain="0.251188" />
+    <F3 Freq="2750" Bandwidth="120" Gain="0.005012" />
+    <F4 Freq="3000" Bandwidth="130" Gain="0.003981" />
+    <F5 Freq="3350" Bandwidth="140" Gain="0.000158" />
+    <FRICATIVE Gain="0" Lowcut="20.0" Highcut="20000.0" Attack="0.1" Decay="0.5" Sustain="0.5" Release="1.0" />
+  </A>
+  <E>
+    <F1 Freq="440" Bandwidth="70" Gain="1.0" />
+    <F2 Freq="1800" Bandwidth="80" Gain="0.039811"></F2>
+    <F3 Freq="2700" Bandwidth="100" Gain="0.015849" />
+    <F4 Freq="3000" Bandwidth="120" Gain="0.01" />
+    <F5 Freq="3300" Bandwidth="120" Gain="0.01"></F5>
+    <FRICATIVE Gain="0" Lowcut="20.0" Highcut="20000.0" Attack="0.1" Decay="0.5" Sustain="0.5" Release="1.0" />
+  </E>
+  <I>
+    <F1 Freq="270" Bandwidth="40" Gain="1.0" />
+    <F2 Freq="1850" Bandwidth="90" Gain="0.003981" />
+    <F3 Freq="2900" Bandwidth="100" Gain="0.003981" />
+    <F4 Freq="3350" Bandwidth="120" Gain="0.0002512"></F4>
+    <F5 Freq="3590" Bandwidth="120" Gain="" />
+    <FRICATIVE Gain="0" Lowcut="20.0" Highcut="20000.0" Attack="0.1" Decay="0.5" Sustain="0.5" Release="1.0" />
+  </I>
+  <O>
+    <F1 Freq="430" Bandwidth="40" Gain="1.0" />
+    <F2 Freq="820" Bandwidth="80" Gain="0.1" />
+    <F3 Freq="2700" Bandwidth="100" Gain="0.002512" />
+    <F4 Freq="3000" Bandwidth="120" Gain="0.006309" />
+    <F5 Freq="3300" Bandwidth="120" Gain="0.000398" />
+    <FRICATIVE Gain="0" Lowcut="20.0" Highcut="20000.0" Attack="0.1" Decay="0.5" Sustain="0.5" Release="1.0" />
+  </O>
+  <U>
+    <F1 Freq="370" Bandwidth="40" Gain="1.0" />
+    <F2 Freq="630" Bandwidth="60" Gain="0.01" />
+    <F3 Freq="2750" Bandwidth="100" Gain="0.005012"></F3>
+    <F4 Freq="3000" Bandwidth="120" Gain="0.001" />
+    <F5 Freq="3400" Bandwidth="120" Gain="0.000398"></F5>
+    <FRICATIVE Gain="0" Lowcut="20.0" Highcut="20000.0" Attack="0.1" Decay="0.5" Sustain="0.5" Release="1.0" />
+  </U>
+</PHONEME_DATA>

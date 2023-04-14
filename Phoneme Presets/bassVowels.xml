@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<PHONEME_DATA>
+<!--Source: CSound, https://csound.com/docs/manual/MiscFormants.html-->
+<PHONEME_DATA Name="Bass Vowels">
   <A>
     <F1 Freq="600" Bandwidth="60" Gain="1.0" />
     <F2 Freq="1040" Bandwidth="70" Gain="0.1995" />

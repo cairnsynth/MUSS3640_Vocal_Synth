@@ -31,6 +31,8 @@ public:
     }
     void setName(std::string name);
     void setFormant(int formant, float frequency, float bandwidth, float gain);
+    void setFofGain(float gain);
+    void setBpGain(float gain);
     void setFrequency(int formant, float frequency);
     void setBandwidth(int formant, float bandwidth);
     void setGain(int formant, float gain);
@@ -42,6 +44,8 @@ public:
     void setFricativeColour(float low, float high);
 
     std::string getName();
+    float getFofGain();
+    float getBpGain();
     float getFrequency(int formant);
     float getBandwidth(int formant);
     float getGain(int formant);
@@ -56,6 +60,8 @@ public:
 private:
     std::string _name;
     Formant _formants[5];
+    float _fofGain = 1.0f;
+    float _bpGain = 0.5f;
     float _fricativeGain = 0.0f;
     float _fricativeAttack = 0.01f;
     float _fricativeDecay = 0.5f;

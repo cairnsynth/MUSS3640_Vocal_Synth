@@ -656,6 +656,11 @@ FormantSynthAudioProcessorEditor::FormantSynthAudioProcessorEditor (FormantSynth
     fofGainLabel.attachToComponent(&fofGainSlider, false);
     fofGainLabel.setLookAndFeel(&textLookAndFeel);
 
+    // FOF gain lock
+    fofGainLockAttach = std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>
+        (audioProcessor.apvts, FOF_LOCK_ID, fofGainLockButton);
+    addAndMakeVisible(&fofGainLockButton);
+
     // BP Gain
     bpGainAttach = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>
         (audioProcessor.apvts, BP_GAIN_ID, bpGainSlider);
@@ -672,6 +677,11 @@ FormantSynthAudioProcessorEditor::FormantSynthAudioProcessorEditor (FormantSynth
     bpGainLabel.attachToComponent(&bpGainSlider, false);
     bpGainLabel.setLookAndFeel(&textLookAndFeel);
 
+    // BP gain lock
+    bpGainLockAttach = std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>
+        (audioProcessor.apvts, BP_LOCK_ID, bpGainLockButton);
+    addAndMakeVisible(&bpGainLockButton);
+
     // Fricative Gain
     fricativeGainAttach = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>
         (audioProcessor.apvts, FRICA_GAIN_ID, fricativeGainSlider);
@@ -687,6 +697,11 @@ FormantSynthAudioProcessorEditor::FormantSynthAudioProcessorEditor (FormantSynth
     fricativeGainLabel.setText("Fricative Gain", juce::dontSendNotification);
     fricativeGainLabel.attachToComponent(&fricativeGainSlider, false);
     fricativeGainLabel.setLookAndFeel(&textLookAndFeel);
+
+    // Fricative gain lock
+    fricativeGainLockAttach = std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>
+        (audioProcessor.apvts, FRICA_LOCK_ID, fricativeGainLockButton);
+    addAndMakeVisible(&fricativeGainLockButton);
 
 }
 
@@ -795,9 +810,13 @@ void FormantSynthAudioProcessorEditor::resized()
     fricativeSustainSlider.setBounds(envelopeArea.removeFromLeft(envelopeArea.getWidth() / 2).reduced(objectBorder));
     fricativeReleaseSlider.setBounds(envelopeArea.removeFromLeft(envelopeArea.getWidth()).reduced(objectBorder));
 
+    auto mixerLockArea = mixerArea.removeFromRight(60);
     fofGainSlider.setBounds(mixerArea.removeFromTop(mixerArea.getHeight()/3).reduced(objectBorder));
     bpGainSlider.setBounds(mixerArea.removeFromTop(mixerArea.getHeight() / 2).reduced(objectBorder));
     fricativeGainSlider.setBounds(mixerArea.removeFromTop(mixerArea.getHeight()).reduced(objectBorder));
+    fofGainLockButton.setBounds(mixerLockArea.removeFromTop(mixerLockArea.getHeight() / 3).reduced(objectBorder));
+    bpGainLockButton.setBounds(mixerLockArea.removeFromTop(mixerLockArea.getHeight() / 2).reduced(objectBorder));
+    fricativeGainLockButton.setBounds(mixerLockArea.removeFromTop(mixerLockArea.getHeight()).reduced(objectBorder));
 
     vibratoLabel.setBounds(vibratoArea.removeFromTop(headerHeight));
     vibratoFrequencySlider.setBounds(vibratoArea.removeFromLeft(vibratoArea.getWidth() / 5).reduced(objectBorder));
@@ -875,6 +894,9 @@ void FormantSynthAudioProcessorEditor::enableSourceGui(int sourceWave)
 
 void FormantSynthAudioProcessorEditor::updateFilterControls(Phoneme p)
 {
+    //fofGainSlider.setValue(p.getFofGain());
+    //bpGainSlider.setValue(p.getBpGain());
+
     f1FreqSlider.setValue(p.getFrequency(0));
     f1BandwidthSlider.setValue(p.getBandwidth(0));
     f1GainSlider.setValue(p.getGain(0));
@@ -895,12 +917,21 @@ void FormantSynthAudioProcessorEditor::updateFilterControls(Phoneme p)
     f5BandwidthSlider.setValue(p.getBandwidth(4));
     f5GainSlider.setValue(p.getGain(4));
 
-    fricativeGainSlider.setValue(p.getFricativeGain());
     fricativeLowCutSlider.setValue(p.getFricativeLow());
     fricativeHighCutSlider.setValue(p.getFricativeHigh());
     fricativeAttackSlider.setValue(p.getFricativeAttack());
     fricativeDecaySlider.setValue(p.getFricativeDecay());
     fricativeSustainSlider.setValue(p.getFricativeSustain());
     fricativeReleaseSlider.setValue(p.getFricativeRelease());
+
+    if (*audioProcessor.apvts.getRawParameterValue(FRICA_LOCK_ID) != 1) {
+        fricativeGainSlider.setValue(p.getFricativeGain());
+    }
+    if (*audioProcessor.apvts.getRawParameterValue(FOF_LOCK_ID) != 1) {
+        fofGainSlider.setValue(p.getFofGain());
+    }
+    if (*audioProcessor.apvts.getRawParameterValue(BP_LOCK_ID) != 1) {
+        bpGainSlider.setValue(p.getBpGain());
+    }
 }
 

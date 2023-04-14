@@ -1,0 +1,37 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!--Source: Romain Michon, https://github.com/FlatIO/faudiostream/blob/master/examples/faust-stk/phonemes.h-->
+<PHONEME_DATA Name="Advanced Phonemes">
+  <EEE>
+    <F1 Freq="650" Bandwidth="80" Gain="1.0" />
+    <F2 Freq="1080" Bandwidth="90" Gain="0.251189"></F2>
+    <F3 Freq="2650" Bandwidth="120" Gain="0.199526" />
+    <F4 Freq="2900" Bandwidth="130" Gain="0.158489" />
+    <F5 Freq="3250" Bandwidth="140" Gain="0.006309" />
+    <FRICATIVE Gain="0" Lowcut="20.0" Highcut="20000.0" Attack="0.1" Decay="0.5" Sustain="0.5" Release="1.0" />
+    <VOICED FOF_gain="1.0" BP_gain="0.5" />
+  </EEE>
+  <IHH>
+    <F1 Freq="650" Bandwidth="80" Gain="1.0" />
+    <F2 Freq="1080" Bandwidth="90" Gain="0.251189"></F2>
+    <F3 Freq="2650" Bandwidth="120" Gain="0.199526" />
+    <F4 Freq="2900" Bandwidth="130" Gain="0.158489" />
+    <F5 Freq="3250" Bandwidth="140" Gain="0.006309" />
+    <FRICATIVE Gain="0" Lowcut="20.0" Highcut="20000.0" Attack="0.1" Decay="0.5" Sustain="0.5" Release="1.0" />
+  </IHH>
+  <EHH>
+    <F1 Freq="650" Bandwidth="80" Gain="1.0" />
+    <F2 Freq="1080" Bandwidth="90" Gain="0.251189"></F2>
+    <F3 Freq="2650" Bandwidth="120" Gain="0.199526" />
+    <F4 Freq="2900" Bandwidth="130" Gain="0.158489" />
+    <F5 Freq="3250" Bandwidth="140" Gain="0.006309" />
+    <FRICATIVE Gain="0" Lowcut="20.0" Highcut="20000.0" Attack="0.1" Decay="0.5" Sustain="0.5" Release="1.0" />
+  </EHH>
+  <AAA>
+    <F1 Freq="650" Bandwidth="80" Gain="1.0" />
+    <F2 Freq="1080" Bandwidth="90" Gain="0.251189"></F2>
+    <F3 Freq="2650" Bandwidth="120" Gain="0.199526" />
+    <F4 Freq="2900" Bandwidth="130" Gain="0.158489" />
+    <F5 Freq="3250" Bandwidth="140" Gain="0.006309" />
+    <FRICATIVE Gain="0" Lowcut="20.0" Highcut="20000.0" Attack="0.1" Decay="0.5" Sustain="0.5" Release="1.0" />
+  </AAA>
+</PHONEME_DATA>

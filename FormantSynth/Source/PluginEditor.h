@@ -53,10 +53,13 @@ private:
     // Mixer
     juce::Slider fofGainSlider;
     juce::Label fofGainLabel;
+    juce::ToggleButton fofGainLockButton;
     juce::Slider bpGainSlider;
     juce::Label bpGainLabel;
+    juce::ToggleButton bpGainLockButton;
     juce::Slider fricativeGainSlider;
     juce::Label fricativeGainLabel; 
+    juce::ToggleButton fricativeGainLockButton;
 
     // Source
     juce::Label bpSourceLabel;
@@ -203,8 +206,11 @@ private:
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> fricativeReleaseAttach;
 
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> fofGainAttach;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> fofGainLockAttach;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> bpGainAttach;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> bpGainLockAttach;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> fricativeGainAttach;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> fricativeGainLockAttach;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (FormantSynthAudioProcessorEditor)
 };

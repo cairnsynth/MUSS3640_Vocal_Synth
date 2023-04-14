@@ -1,0 +1,44 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!--Source: CSound, https://csound.com/docs/manual/MiscFormants.html-->
+<PHONEME_DATA Name="Soprano Vowels">
+  <A>
+    <F1 Freq="800" Bandwidth="80" Gain="1.0" />
+    <F2 Freq="1150" Bandwidth="90" Gain="0.25119" />
+    <F3 Freq="2900" Bandwidth="120" Gain="0.000630" />
+    <F4 Freq="3900" Bandwidth="130" Gain="0.01" />
+    <F5 Freq="4950" Bandwidth="140" Gain="0.00001" />
+    <FRICATIVE Gain="0" Lowcut="20.0" Highcut="20000.0" Attack="0.1" Decay="0.5" Sustain="0.5" Release="1.0" />
+  </A>
+  <E>
+    <F1 Freq="350" Bandwidth="60" Gain="1.0" />
+    <F2 Freq="2000" Bandwidth="100" Gain="0.01"></F2>
+    <F3 Freq="2800" Bandwidth="120" Gain="0.03162" />
+    <F4 Freq="3600" Bandwidth="150" Gain="0.0001"></F4>
+    <F5 Freq="4950" Bandwidth="200" Gain="0.000003"></F5>
+    <FRICATIVE Gain="0" Lowcut="20.0" Highcut="20000.0" Attack="0.1" Decay="0.5" Sustain="0.5" Release="1.0" />
+  </E>
+  <I>
+    <F1 Freq="270" Bandwidth="60" Gain="1.0" />
+    <F2 Freq="2140" Bandwidth="90" Gain="0.06309" />
+    <F3 Freq="2950" Bandwidth="100" Gain="0.002512" />
+    <F4 Freq="3900" Bandwidth="120" Gain="0.002512"></F4>
+    <F5 Freq="4950" Bandwidth="120" Gain="0.000039"></F5>
+    <FRICATIVE Gain="0" Lowcut="20.0" Highcut="20000.0" Attack="0.1" Decay="0.5" Sustain="0.5" Release="1.0" />
+  </I>
+  <O>
+    <F1 Freq="450" Bandwidth="40" Gain="1.0" />
+    <F2 Freq="800" Bandwidth="80" Gain="0.07943" />
+    <F3 Freq="2830" Bandwidth="100" Gain="0.006309" />
+    <F4 Freq="3800" Bandwidth="120" Gain="0.006309" />
+    <F5 Freq="4950" Bandwidth="120" Gain="0.00001" />
+    <FRICATIVE Gain="0" Lowcut="20.0" Highcut="20000.0" Attack="0.1" Decay="0.5" Sustain="0.5" Release="1.0" />
+  </O>
+  <U>
+    <F1 Freq="325" Bandwidth="50" Gain="1.0" />
+    <F2 Freq="700" Bandwidth="60" Gain="0.025119" />
+    <F3 Freq="2700" Bandwidth="170" Gain="0.000316"></F3>
+    <F4 Freq="3800" Bandwidth="180" Gain="0.0001" />
+    <F5 Freq="4950" Bandwidth="200" Gain="0.000001"></F5>
+    <FRICATIVE Gain="0" Lowcut="20.0" Highcut="20000.0" Attack="0.1" Decay="0.5" Sustain="0.5" Release="1.0" />
+  </U>
+</PHONEME_DATA>

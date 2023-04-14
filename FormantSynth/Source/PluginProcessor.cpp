@@ -113,10 +113,16 @@ juce::AudioProcessorValueTreeState::ParameterLayout FormantSynthAudioProcessor::
     // Mixer parameter creation
     auto fofGainParam = std::make_unique<juce::AudioParameterFloat>(FOF_GAIN_ID, "FOF Model Gain", 0.0f, 1.0f, 1.0f);
     params.push_back(std::move(fofGainParam));
+    auto fofGainLockParam = std::make_unique<juce::AudioParameterBool>(FOF_LOCK_ID, "FOF Gain Lock", false);
+    params.push_back(std::move(fofGainLockParam));
     auto bpGainParam = std::make_unique<juce::AudioParameterFloat>(BP_GAIN_ID, "Bandpass Model Gain", 0.0f, 1.0f, 1.0f);
     params.push_back(std::move(bpGainParam));
+    auto bpGainLockParam = std::make_unique<juce::AudioParameterBool>(BP_LOCK_ID, "Bandpass Gain Lock", false);
+    params.push_back(std::move(bpGainLockParam));
     auto fricativeGainParam = std::make_unique<juce::AudioParameterFloat>(FRICA_GAIN_ID, "Fricative Gain", 0.0f, 1.0f, 1.0f);
     params.push_back(std::move(fricativeGainParam));
+    auto fricativeGainLockParam = std::make_unique<juce::AudioParameterBool>(FRICA_LOCK_ID, "Fricative Gain Lock", false);
+    params.push_back(std::move(fricativeGainLockParam));
 
     return { params.begin(), params.end() };
 }
@@ -549,13 +555,17 @@ void FormantSynthAudioProcessor::setPhoneme(std::vector<Phoneme> pVector, float 
     setF5Freq();
     setF5Bandwidth();
     setF5Gain();
-    setFricativeGain();
     setFricativeLowCut();
     setFricativeHighCut();
     setFricativeAttack();
     setFricativeDecay();
     setFricativeSustain();
     setFricativeRelease();
+
+    if (*apvts.getRawParameterValue(FRICA_LOCK_ID) != 1) { setFricativeGain(); }
+    if (*apvts.getRawParameterValue(FOF_LOCK_ID) != 1) { setFofGain(); }
+    if (*apvts.getRawParameterValue(BP_LOCK_ID) != 1) { setBpGain(); }
+    
 }
 
 Phoneme FormantSynthAudioProcessor::interpolatePhonemes(Phoneme p1, Phoneme p2, float val)
@@ -572,6 +582,8 @@ Phoneme FormantSynthAudioProcessor::interpolatePhonemes(Phoneme p1, Phoneme p2, 
         tempPhoneme.setBandwidth(i, lerp(p1.getBandwidth(i), p2.getBandwidth(i), val));
         tempPhoneme.setGain(i, lerp(p1.getGain(i), p2.getGain(i), val));
     }
+    tempPhoneme.setFofGain(lerp(p1.getFofGain(), p2.getFofGain(), val));
+    tempPhoneme.setBpGain(lerp(p1.getBpGain(), p2.getBpGain(), val));
     tempPhoneme.setFricativeColour(lerp(p1.getFricativeLow(), p2.getFricativeLow(), val),
         lerp(p1.getFricativeHigh(), p2.getFricativeHigh(), val));
     tempPhoneme.setFricativeGain(lerp(p1.getFricativeGain(), p2.getFricativeGain(), val));
@@ -652,7 +664,11 @@ void FormantSynthAudioProcessor::loadButtonClicked()
                                 //DBG(tp.getFricativeSustain());
                                 tp.setFricativeRelease(f->getDoubleAttribute("Release"));
                                 //DBG(tp.getFricativeRelease());
-                            }  
+                            }
+                            if (f->hasTagName("VOICED")) {
+                                tp.setFofGain(f->getDoubleAttribute("FOF_gain"));
+                                tp.setBpGain(f->getDoubleAttribute("BP_gain"));
+                            }
                         }
                         phonemeVector.push_back(std::move(tp));
                     }

@@ -48,8 +48,11 @@
 #define FRICA_RELEASE_ID "fricativeRelease"
 
 #define FOF_GAIN_ID "fofGain"
+#define FOF_LOCK_ID "fofGainLock"
 #define BP_GAIN_ID "bpGain"
+#define BP_LOCK_ID "bpGainLock"
 #define FRICA_GAIN_ID "fricativeGain"
+#define FRICA_LOCK_ID "fricativeGainLock"
 
 //==============================================================================
 /**

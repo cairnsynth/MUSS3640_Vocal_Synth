@@ -1,6 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <!--Phoneme data must be stored within the "PHONEME_DATA" element, its name must not be changed-->
-<PHONEME_DATA>
+<PHONEME_DATA Name="Phoneme Preset">
+  <!--The "Name" attribute is the display name of the preset-->
   <!--Each phoneme is contained within a child-element of "PHONEME_DATA", the name of the element defines the name of the phoneme-->
   <_Phoneme_>
     <!--Data for each formant is stored in a child-element of the phoneme-->

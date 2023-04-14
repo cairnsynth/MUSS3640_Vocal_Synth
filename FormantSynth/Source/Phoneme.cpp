@@ -20,6 +20,26 @@ std::string Phoneme::getName()
     return _name;
 }
 
+void Phoneme::setFofGain(float gain)
+{
+    _fofGain = gain;
+}
+
+float Phoneme::getFofGain()
+{
+    return _fofGain;
+}
+
+void Phoneme::setBpGain(float gain)
+{
+    _bpGain = gain;
+}
+
+float Phoneme::getBpGain()
+{
+    return _bpGain;
+}
+
 void Phoneme::setFormant(int formant, float frequency, float bandwidth, float gain)
 {
     setFrequency(formant, frequency);
