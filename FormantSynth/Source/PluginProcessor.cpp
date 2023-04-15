@@ -5,16 +5,18 @@
 FormantSynthAudioProcessor::FormantSynthAudioProcessor()
 #ifndef JucePlugin_PreferredChannelConfigurations
     : AudioProcessor(BusesProperties().withOutput("Output", juce::AudioChannelSet::stereo(), true)
-            ),
-apvts(*this, nullptr, "PARAMETERS", createParameterLayout())
+    ),
+    apvts(*this, nullptr, "PARAMETERS", createParameterLayout())
 #endif
 {
     initialisePhonemes();
+    startTimerHz(60);
     dsp.start();
 }
 
 FormantSynthAudioProcessor::~FormantSynthAudioProcessor()
 {
+    stopTimer();
     dsp.stop();
 }
 
@@ -272,6 +274,64 @@ bool FormantSynthAudioProcessor::isBusesLayoutSupported (const BusesLayout& layo
 
 void FormantSynthAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
+    midiQueue.push(midiMessages);
+
+
+
+    buffer.clear();
+    processMidi();
+
+    
+}
+
+void FormantSynthAudioProcessor::timerCallback()
+{
+    std::vector<juce::MidiMessage> messages;
+    midiQueue.pop(std::back_inserter(messages));
+    midiModel.addMessages(messages.begin(), messages.end());
+    
+}
+
+void FormantSynthAudioProcessor::processMidi()
+{  
+    for (juce::MidiMessage m : midiModel.newMessages) {
+        if (m.isNoteOn()) {
+            int isOnFlag = 0;
+            for (auto i = voiceKeys.begin(); i != voiceKeys.end(); ++i) {
+                if (m.getNoteNumber() == *i) {
+                    isOnFlag = 1;
+                }
+            }
+            if (!isOnFlag) {
+                keyOn(m.getNoteNumber(), m.getVelocity());
+                voiceKeys.push_back(m.getNoteNumber());
+            }
+            isOnFlag = 0;
+        }
+        if (m.isNoteOff()) {
+            for (auto i = voiceKeys.begin(); i != voiceKeys.end(); ++i) {
+                if (m.getNoteNumber() == *i) {
+                    keyOff(m.getNoteNumber());
+                    voiceKeys.erase(i);
+                }
+            }
+        }
+        if (m.isAllNotesOff()) {
+            dsp.allNotesOff();
+        }
+
+        /*if (m.isNoteOn()) {
+            keyOn(m.getNoteNumber(), m.getVelocity());
+
+        }
+        if (m.isNoteOff()) {
+            keyOff(m.getNoteNumber());
+        }
+        if (m.isAllNotesOff()) {
+            dsp.allNotesOff();
+        }*/
+    }
+   // midiModel.clear();
 }
 
 //==============================================================================

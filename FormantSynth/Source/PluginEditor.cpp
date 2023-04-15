@@ -2,9 +2,11 @@
 #include "PluginEditor.h"
 
 //==============================================================================
-FormantSynthAudioProcessorEditor::FormantSynthAudioProcessorEditor (FormantSynthAudioProcessor& p)
-    : AudioProcessorEditor (&p), audioProcessor (p),
-    keyboardComponent(audioProcessor.keyboardState, juce::MidiKeyboardComponent::horizontalKeyboard)
+FormantSynthAudioProcessorEditor::FormantSynthAudioProcessorEditor(FormantSynthAudioProcessor& p)
+    : AudioProcessorEditor(&p), audioProcessor(p),
+    keyboardComponent(audioProcessor.keyboardState,
+    juce::MidiKeyboardComponent::horizontalKeyboard),
+    table(p.midiModel)
 {
     // Audio Processor Value Tree attachments
     
@@ -703,6 +705,9 @@ FormantSynthAudioProcessorEditor::FormantSynthAudioProcessorEditor (FormantSynth
         (audioProcessor.apvts, FRICA_LOCK_ID, fricativeGainLockButton);
     addAndMakeVisible(&fricativeGainLockButton);
 
+
+    // Midi message table
+    addAndMakeVisible(&table);
 }
 
 FormantSynthAudioProcessorEditor::~FormantSynthAudioProcessorEditor()
@@ -776,7 +781,7 @@ void FormantSynthAudioProcessorEditor::resized()
     addPhonemeButton.setBounds(filterArea.removeFromTop(50).removeFromLeft(filterArea.getWidth()/2).reduced(objectBorder));
     loadXmlButton.setBounds(filterArea);
 
-    auto f1Area = formantArea.removeFromLeft(formantArea.getWidth() / 5);
+    /*auto f1Area = formantArea.removeFromLeft(formantArea.getWidth() / 5);
     f1FreqSlider.setBounds(f1Area.removeFromTop(f1Area.getHeight() / 3).reduced(0));
     f1BandwidthSlider.setBounds(f1Area.removeFromTop(f1Area.getHeight() / 2).reduced(0));
     f1GainSlider.setBounds(f1Area.reduced(0));
@@ -795,7 +800,9 @@ void FormantSynthAudioProcessorEditor::resized()
     auto f5Area = formantArea.removeFromLeft(formantArea.getWidth() / 1);
     f5FreqSlider.setBounds(f5Area.removeFromTop(f5Area.getHeight() / 3).reduced(0));
     f5BandwidthSlider.setBounds(f5Area.removeFromTop(f5Area.getHeight() / 2).reduced(0));
-    f5GainSlider.setBounds(f5Area.reduced(0));
+    f5GainSlider.setBounds(f5Area.reduced(0));*/
+
+    table.setBounds(formantArea.reduced(objectBorder));
 
     voiceEnvelopeLabel.setBounds(envelopeHeaderArea.removeFromLeft(envelopeHeaderArea.getWidth() / 2));
     fricativeEnvelopeLabel.setBounds(envelopeHeaderArea);

@@ -34,8 +34,7 @@ private:
 
     void enableSourceGui(int sourceWave);
 
-    
-
+    MidiTable table;
     
     juce::MidiKeyboardComponent keyboardComponent;
 

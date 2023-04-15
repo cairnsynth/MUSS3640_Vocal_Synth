@@ -3,6 +3,7 @@
 #include <JuceHeader.h>
 #include "DspFaust.h"
 #include "Phoneme.h"
+#include "ExternalMidi.h"
 
 #define SOURCE_PW_ID "bpSourcePw"
 #define SOURCE_WAVE_ID "bpSourceWave"
@@ -55,9 +56,12 @@
 #define FRICA_LOCK_ID "fricativeGainLock"
 
 //==============================================================================
-/**
+/* REF:
+*   JUCE MIDILogger example
 */
-class FormantSynthAudioProcessor  : public juce::AudioProcessor
+
+class FormantSynthAudioProcessor  : public juce::AudioProcessor,
+    private juce::Timer
                             #if JucePlugin_Enable_ARA
                              , public juce::AudioProcessorARAExtension
                             #endif
@@ -179,8 +183,21 @@ public:
 
     juce::MidiKeyboardState keyboardState;
 
+    MidiQueue midiQueue;
+    MidiListModel midiModel;
+
+    juce::String midiInfo;
+
+    int noteOnFlag = 0;
+    int noteOffFlag = 0;
+
 private:
     DspFaust dsp;  // Main DSP object
+    void timerCallback() override;
+
+    void processMidi();
+    std::vector<int> voiceKeys;
+    //MidiTable midiTable;
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (FormantSynthAudioProcessor)
