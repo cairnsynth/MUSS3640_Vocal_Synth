@@ -177,8 +177,11 @@ public:
     
     Phoneme interpolatedPhoneme;
 
+    juce::MidiKeyboardState keyboardState;
+
 private:
     DspFaust dsp;  // Main DSP object
+
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (FormantSynthAudioProcessor)
 };

@@ -23,6 +23,8 @@ public:
     void updateFilterControls(Phoneme p);
     void updateFormant(int f, float freq, float bw, float gain);
 
+    //juce::MidiKeyboardState keyboardState;
+
 private:
     FormantSynthAudioProcessor& audioProcessor;
 
@@ -34,7 +36,7 @@ private:
 
     
 
-    juce::MidiKeyboardState keyboardState;
+    
     juce::MidiKeyboardComponent keyboardComponent;
 
     /*GUI Objects*/

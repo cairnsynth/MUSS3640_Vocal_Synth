@@ -4,7 +4,7 @@
 //==============================================================================
 FormantSynthAudioProcessorEditor::FormantSynthAudioProcessorEditor (FormantSynthAudioProcessor& p)
     : AudioProcessorEditor (&p), audioProcessor (p),
-    keyboardComponent(keyboardState, juce::MidiKeyboardComponent::horizontalKeyboard)
+    keyboardComponent(audioProcessor.keyboardState, juce::MidiKeyboardComponent::horizontalKeyboard)
 {
     // Audio Processor Value Tree attachments
     
@@ -73,7 +73,7 @@ FormantSynthAudioProcessorEditor::FormantSynthAudioProcessorEditor (FormantSynth
 
     // Keyboard
     addAndMakeVisible(&keyboardComponent);
-    keyboardState.addListener(this);
+    audioProcessor.keyboardState.addListener(this);
     keyboardComponent.setLookAndFeel(&sourceLookAndFeel);
 
     // Bandpass source label
@@ -707,7 +707,7 @@ FormantSynthAudioProcessorEditor::FormantSynthAudioProcessorEditor (FormantSynth
 
 FormantSynthAudioProcessorEditor::~FormantSynthAudioProcessorEditor()
 {
-    keyboardState.removeListener(this);
+    audioProcessor.keyboardState.removeListener(this);
 }
 
 //==============================================================================
