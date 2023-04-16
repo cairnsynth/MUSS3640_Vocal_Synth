@@ -60,6 +60,9 @@
 *   JUCE MIDILogger example
 */
 
+class FaustPolyEngine;
+class audio;
+
 class FormantSynthAudioProcessor  : public juce::AudioProcessor,
     private juce::Timer
                             #if JucePlugin_Enable_ARA
@@ -198,6 +201,10 @@ private:
     void processMidi();
     std::vector<int> voiceKeys;
     //MidiTable midiTable;
+
+    audio* driver;
+    FaustPolyEngine* faustObject;
+    float** outputs;
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (FormantSynthAudioProcessor)

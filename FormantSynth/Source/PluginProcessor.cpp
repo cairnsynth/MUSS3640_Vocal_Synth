@@ -276,8 +276,6 @@ void FormantSynthAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer,
 {
     midiQueue.push(midiMessages);
 
-
-
     buffer.clear();
     processMidi();
 
@@ -294,6 +292,7 @@ void FormantSynthAudioProcessor::timerCallback()
 
 void FormantSynthAudioProcessor::processMidi()
 {  
+    
     for (juce::MidiMessage m : midiModel.newMessages) {
         if (m.isNoteOn()) {
             int isOnFlag = 0;
@@ -319,19 +318,7 @@ void FormantSynthAudioProcessor::processMidi()
         if (m.isAllNotesOff()) {
             dsp.allNotesOff();
         }
-
-        /*if (m.isNoteOn()) {
-            keyOn(m.getNoteNumber(), m.getVelocity());
-
-        }
-        if (m.isNoteOff()) {
-            keyOff(m.getNoteNumber());
-        }
-        if (m.isAllNotesOff()) {
-            dsp.allNotesOff();
-        }*/
     }
-   // midiModel.clear();
 }
 
 //==============================================================================
@@ -346,17 +333,24 @@ juce::AudioProcessorEditor* FormantSynthAudioProcessor::createEditor()
 }
 
 //==============================================================================
+/* getStateInformation / setStateInformation Reference :
+*  https://docs.juce.com/master/tutorial_audio_processor_value_tree_state.html
+*/
 void FormantSynthAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
 {
-    // You should use this method to store your parameters in the memory block.
-    // You could do that either as raw data, or use the XML or ValueTree classes
-    // as intermediaries to make it easy to save and load complex data.
+    auto state = apvts.copyState();
+    std::unique_ptr<juce::XmlElement> stateXml(state.createXml());
+    copyXmlToBinary(*stateXml, destData);
 }
 
 void FormantSynthAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
-    // You should use this method to restore your parameters from this memory block,
-    // whose contents will have been created by the getStateInformation() call.
+    std::unique_ptr<juce::XmlElement> stateXml(getXmlFromBinary(data, sizeInBytes));
+    if (stateXml.get() != nullptr) {
+        if (stateXml->hasTagName(apvts.state.getType())) {
+            apvts.replaceState(juce::ValueTree::fromXml(*stateXml));
+        }
+    }
 }
 
 //==============================================================================
