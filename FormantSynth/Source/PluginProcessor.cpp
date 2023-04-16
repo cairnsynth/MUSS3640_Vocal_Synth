@@ -26,7 +26,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout FormantSynthAudioProcessor::
 {
     std::vector<std::unique_ptr<juce::RangedAudioParameter>> params;
     // Source parameter creation
-    auto sourceWaveParam = std::make_unique<juce::AudioParameterInt>(SOURCE_WAVE_ID, "Source Waveform", 1, 3, 1);
+    auto sourceWaveParam = std::make_unique<juce::AudioParameterInt>(SOURCE_WAVE_ID, "Source Waveform", 0, 2, 0);
     params.push_back(std::move(sourceWaveParam));
     auto sourcePwParam = std::make_unique<juce::AudioParameterFloat>(SOURCE_PW_ID, "Source Wave Pulsewidth", 0.0f, 1.0f, 0.25f);
     params.push_back(std::move(sourcePwParam));
