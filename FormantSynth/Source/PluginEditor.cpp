@@ -223,7 +223,7 @@ FormantSynthAudioProcessorEditor::FormantSynthAudioProcessorEditor(FormantSynthA
     phonemeAttach = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>
         (audioProcessor.apvts, PHONEME_ID, phonemeSlider);
     addAndMakeVisible(&phonemeSlider);
-    phonemeSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, true, 100, 20);
+    phonemeSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 100, 20);
     phonemeSlider.setRange(audioProcessor.apvts.getParameterRange(PHONEME_ID).start, audioProcessor.apvts.getParameterRange(PHONEME_ID).end);
     phonemeSlider.setValue(*audioProcessor.apvts.getRawParameterValue(PHONEME_ID));
     phonemeSlider.onValueChange = [this] {
@@ -261,6 +261,14 @@ FormantSynthAudioProcessorEditor::FormantSynthAudioProcessorEditor(FormantSynthA
     loadXmlButton.setButtonText("Load XML File");
     loadXmlButton.onClick = [this] {
         audioProcessor.loadButtonClicked();
+    };
+
+    // Skirt width button
+    skirtWidthAttach = std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>
+        (audioProcessor.apvts, SKIRTWIDTH_ID, skirtWidthButton);
+    addAndMakeVisible(&skirtWidthButton);
+    skirtWidthButton.onClick = [this] {
+        audioProcessor.setSkirtWidth();
     };
 
     // F1 frequency
@@ -780,7 +788,7 @@ void FormantSynthAudioProcessorEditor::resized()
 
     phonemeSlider.setBounds(filterArea.removeFromBottom(100).reduced(objectBorder));
     formantShiftSlider.setBounds(filterArea.removeFromBottom(100).reduced(objectBorder));
-    addPhonemeButton.setBounds(filterArea.removeFromTop(50).removeFromLeft(filterArea.getWidth()/2).reduced(objectBorder));
+    skirtWidthButton.setBounds(filterArea.removeFromTop(50).removeFromLeft(filterArea.getWidth()/2).reduced(objectBorder));
     loadXmlButton.setBounds(filterArea);
 
     auto f1Area = formantArea.removeFromLeft(formantArea.getWidth() / 5);

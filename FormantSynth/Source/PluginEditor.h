@@ -90,6 +90,8 @@ private:
 
     juce::TextButton addPhonemeButton;
 
+    juce::ToggleButton skirtWidthButton;
+
     juce::TextButton loadXmlButton;
     std::unique_ptr<juce::XmlElement> fileData;
     juce::XmlElement* columnList = nullptr;
@@ -170,6 +172,7 @@ private:
 
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> phonemeAttach;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> formantShiftAttach;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> skirtWidthAttach;
 
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> f1FreqAttach;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> f1BandwidthAttach;

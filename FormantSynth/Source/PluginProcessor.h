@@ -17,6 +17,7 @@
 
 #define PHONEME_ID "phoneme"
 #define FORMANT_SHIFT_ID "formantShift"
+#define SKIRTWIDTH_ID "skirtWidthMult"
 #define F1_FREQ_ID "f1Freq"
 #define F1_GAIN_ID "f1Gain"
 #define F1_BW_ID "f1Bandwidth"
@@ -164,6 +165,8 @@ public:
     void setBpGain();
     void setFricativeGain();
 
+    void setVowelNumber();
+    void setSkirtWidth();
     void addPhonemeToVector(Phoneme p);
     void setPhoneme(std::vector<Phoneme> pVector, float interpolationVal);
     Phoneme interpolatePhonemes(Phoneme p1, Phoneme p2, float val);

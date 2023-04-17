@@ -45,10 +45,12 @@ juce::AudioProcessorValueTreeState::ParameterLayout FormantSynthAudioProcessor::
     auto fricativeHighCutParam = std::make_unique<juce::AudioParameterFloat>(FRICA_HIGHCUT_ID, "Fricative Low Cut", 20.0f, 20000.0f, 20000.0f);
     params.push_back(std::move(fricativeHighCutParam));
     // Filter parameter creation
-    auto phonemeParam = std::make_unique<juce::AudioParameterFloat>(PHONEME_ID, "Phoneme", 0.0f, 10.0f, 0.0f);
+    auto phonemeParam = std::make_unique<juce::AudioParameterFloat>(PHONEME_ID, "Phoneme", 0.0f, 4.0f, 0.0f);
     params.push_back(std::move(phonemeParam));
     auto formantShiftParam = std::make_unique<juce::AudioParameterFloat>(FORMANT_SHIFT_ID, "Formant Shift", -500.0f, 500.0f, 0.0f);
     params.push_back(std::move(formantShiftParam));
+    auto skirtWidthParam = std::make_unique<juce::AudioParameterBool>(SKIRTWIDTH_ID, "Use Skirt Width", 1);
+    params.push_back(std::move(skirtWidthParam));
 
     auto f1FreqParam = std::make_unique<juce::AudioParameterFloat>(F1_FREQ_ID, "Formant 1 Frequency", 20.0f, 20000.0f, 800.0f);
     params.push_back(std::move(f1FreqParam));
@@ -394,7 +396,7 @@ void FormantSynthAudioProcessor::keyOff(int key)
 /*DSP Setters*/
 void FormantSynthAudioProcessor::setBpSourceWave()
 {
-    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/source/bpSourceSelect", *apvts.getRawParameterValue(SOURCE_WAVE_ID) - 1);
+    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/source/bpSourceSelect", *apvts.getRawParameterValue(SOURCE_WAVE_ID));
 }
 void FormantSynthAudioProcessor::setBpSourcePw()
 {
@@ -574,6 +576,16 @@ void FormantSynthAudioProcessor::addPhonemeToVector(Phoneme p)
     phonemeVector.push_back(std::move(p));
 }
 
+void FormantSynthAudioProcessor::setVowelNumber()
+{
+    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/vowelNumber", *apvts.getRawParameterValue(PHONEME_ID));
+}
+
+void FormantSynthAudioProcessor::setSkirtWidth()
+{
+    dsp.setParamValue("/Polyphonic/Voices/FormantSynth/useSkirtWidthMult", *apvts.getRawParameterValue(SKIRTWIDTH_ID));
+}
+
 void FormantSynthAudioProcessor::setPhoneme(std::vector<Phoneme> pVector, float val)
 {
     int nPhonemes = pVector.size();
@@ -615,6 +627,8 @@ void FormantSynthAudioProcessor::setPhoneme(std::vector<Phoneme> pVector, float 
     setFricativeDecay();
     setFricativeSustain();
     setFricativeRelease();
+
+    setVowelNumber();
 
     if (*apvts.getRawParameterValue(FRICA_LOCK_ID) != 1) { setFricativeGain(); }
     if (*apvts.getRawParameterValue(FOF_LOCK_ID) != 1) { setFofGain(); }

@@ -27,7 +27,7 @@ f5Gain = nentry("f5Gain", 0.001000, 0.0, 1.0, 0.0001);
 f5BW = nentry("f5BW", 140, 20, 20000, 1);
 
 useSkirtWidthMult = nentry("useSkirtWidthMult", 1, 0, 1, 1);
-vowelNumber = nentry("vowelNumber", 0, 0, 4, 1);
+vowelNumber = nentry("vowelNumber", 0, 0, 4, 0.01);
 
 //Voice Envelope Control
 voiceAttack = vslider("t:voice/h:envelope/voiceAttack", 0.01, 0.01, 2.0, 0.01);
@@ -109,10 +109,10 @@ with {
 };
 
 //FOF Gain Compensation
-fofGainComp = 50;
+fofGainComp = 25;
 
 //FOF Process Block
-fofChain = par(i, nUnison,(fofSource(sourceFreq + ((unisonDetune/nUnison) * i)) <: fofBank : *((1/nUnison)*i), *(1-((1/nUnison)*i)))) :> co.compressor_stereo(5, -30, 0.05, 0.5): *(fofGainComp),*(fofGainComp) : *(voiceEnvelope), *(voiceEnvelope) : *(fofGain),*(fofGain);
+fofChain = par(i, nUnison,(fofSource(sourceFreq + ((unisonDetune/nUnison) * i)) <: fofBank : *((1/nUnison)*i), *(1-((1/nUnison)*i)))) :> co.compressor_stereo(5, -40, 0.05, 0.05): *(fofGainComp),*(fofGainComp) : *(voiceEnvelope), *(voiceEnvelope) : *(fofGain),*(fofGain);
 
 /*BANDPASS*/
 bpSource(freq_) = _square, _saw, _model : select3(bpSourceSelect) :> _
