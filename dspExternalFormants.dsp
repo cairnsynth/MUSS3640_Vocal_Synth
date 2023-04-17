@@ -26,6 +26,9 @@ f5Freq = nentry("f5Freq", 4950, 20, 20000, 1);
 f5Gain = nentry("f5Gain", 0.001000, 0.0, 1.0, 0.0001);
 f5BW = nentry("f5BW", 140, 20, 20000, 1);
 
+useSkirtWidthMult = nentry("useSkirtWidthMult", 1, 0, 1, 1);
+vowelNumber = nentry("vowelNumber", 0, 0, 4, 1);
+
 //Voice Envelope Control
 voiceAttack = vslider("t:voice/h:envelope/voiceAttack", 0.01, 0.01, 2.0, 0.01);
 voiceDecay = vslider("t:voice/h:envelope/voiceDecay", 0.01, 0.01, 2.0, 0.01);
@@ -90,7 +93,7 @@ fofFormant(freq_, bw_, gain_) = pm.fofCycle(_freq, _bw, _sw, _gain, 6)
 with {
     _freq = freq_;
     _bw = bw_ : si.smooth(ba.tau2pole(0.001));
-    _sw = bw_ : si.smooth(ba.tau2pole(0.001));
+    _sw = ba.if(useSkirtWidthMult, pm.skirtWidthMultiplier(vowelNumber, freq_, 0), (bw_ : si.smooth(ba.tau2pole(0.001))));
     _gain = gain_;
 };
 
