@@ -19959,7 +19959,7 @@ class juceaudio : public audio, private juce::AudioAppComponent {
         void getNextAudioBlock(const juce::AudioSourceChannelInfo& bufferToFill) override
         {
             AVOIDDENORMALS;
-            
+
             const float** inputs = (const float**)alloca(fDSP->getNumInputs() * sizeof(float));
             for (int i = 0; i < fDSP->getNumInputs(); i++) {
                 inputs[i] = bufferToFill.buffer->getReadPointer(i, bufferToFill.startSample);
@@ -19975,7 +19975,6 @@ class juceaudio : public audio, private juce::AudioAppComponent {
         }
     
     public:
-    
         juceaudio() {}
         virtual ~juceaudio()
         {
@@ -20014,6 +20013,8 @@ class juceaudio : public audio, private juce::AudioAppComponent {
         int getNumOutputs() override { return deviceManager.getCurrentAudioDevice()->getActiveOutputChannels().toInteger(); }
         
         float getCPULoad() override { return float(deviceManager.getCpuUsage()); }
+
+        //std::vector<float> getOutputs() {};
 };
 
 #endif

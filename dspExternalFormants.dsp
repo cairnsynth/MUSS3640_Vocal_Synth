@@ -93,7 +93,7 @@ fofFormant(freq_, bw_, gain_) = pm.fofCycle(_freq, _bw, _sw, _gain, 6)
 with {
     _freq = freq_;
     _bw = bw_ : si.smooth(ba.tau2pole(0.001));
-    _sw = ba.if(useSkirtWidthMult, pm.skirtWidthMultiplier(vowelNumber, freq_, 0), (bw_ : si.smooth(ba.tau2pole(0.001))));
+    _sw = ba.if(useSkirtWidthMult, (pm.skirtWidthMultiplier(vowelNumber, freq_, 0) : si.smoo), (bw_ : si.smooth(ba.tau2pole(0.01))));
     _gain = gain_;
 };
 
@@ -112,7 +112,7 @@ with {
 fofGainComp = 25;
 
 //FOF Process Block
-fofChain = par(i, nUnison,(fofSource(sourceFreq + ((unisonDetune/nUnison) * i)) <: fofBank : *((1/nUnison)*i), *(1-((1/nUnison)*i)))) :> co.compressor_stereo(5, -40, 0.05, 0.05): *(fofGainComp),*(fofGainComp) : *(voiceEnvelope), *(voiceEnvelope) : *(fofGain),*(fofGain);
+fofChain = par(i, nUnison,(fofSource(sourceFreq + ((unisonDetune/nUnison) * i)) <: fofBank : *((1/nUnison)*i), *(1-((1/nUnison)*i)))) :> co.compressor_stereo(5, -20, 0.05, 0.05): *(fofGainComp),*(fofGainComp) : *(voiceEnvelope), *(voiceEnvelope) : *(fofGain),*(fofGain);
 
 /*BANDPASS*/
 bpSource(freq_) = _square, _saw, _model : select3(bpSourceSelect) :> _

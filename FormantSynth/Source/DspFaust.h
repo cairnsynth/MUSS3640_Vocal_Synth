@@ -506,6 +506,8 @@ class DspFaust
         // otherwise return 0x00RRGGBB a ready to use color
         //-----------------------------------------
         int getScreenColor();
+
+        std::unique_ptr<float**> extraOutputs;
 };
 
 #endif

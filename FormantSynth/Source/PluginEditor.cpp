@@ -28,15 +28,26 @@ FormantSynthAudioProcessorEditor::FormantSynthAudioProcessorEditor(FormantSynthA
     sourceLookAndFeel.setColour(juce::ComboBox::arrowColourId, juce::Colours::coral);
     sourceLookAndFeel.setColour(juce::MidiKeyboardComponent::keyDownOverlayColourId, juce::Colours::coral);
 
-    filterLookAndFeel.setColour(juce::Slider::trackColourId, juce::Colours::transparentWhite);
+    filterLookAndFeel.setColour(juce::Slider::backgroundColourId, sliderTrackFore);
+    filterLookAndFeel.setColour(juce::Slider::trackColourId, sliderTrackBack);
+    filterLookAndFeel.setColour(juce::Slider::thumbColourId, juce::Colours::blue);
+    filterLookAndFeel.setColour(juce::ToggleButton::textColourId, juce::Colours::darkgrey);
+    filterLookAndFeel.setColour(juce::ToggleButton::tickColourId, juce::Colours::blue);
+    filterLookAndFeel.setColour(juce::TextButton::buttonColourId, sliderTrackFore);
+    filterLookAndFeel.setColour(juce::TextButton::textColourOffId, juce::Colours::dimgrey);
     
     fricativeLookAndFeel.setColour(juce::Slider::thumbColourId, juce::Colours::mediumturquoise);
     fricativeLookAndFeel.setColour(juce::Slider::backgroundColourId, sliderTrackFore);
     fricativeLookAndFeel.setColour(juce::Slider::trackColourId, sliderTrackBack);
 
+    vibratoLookAndFeel.setColour(juce::Slider::thumbColourId, juce::Colours::hotpink);
+    vibratoLookAndFeel.setColour(juce::Slider::backgroundColourId, sliderTrackFore);
+    vibratoLookAndFeel.setColour(juce::Slider::trackColourId, sliderTrackBack);
+
     mixerLookAndFeel.setColour(juce::Slider::thumbColourId, juce::Colours::darkviolet);
     mixerLookAndFeel.setColour(juce::Slider::backgroundColourId, sliderTrackFore);
     mixerLookAndFeel.setColour(juce::Slider::trackColourId, sliderTrackBack);
+    mixerLookAndFeel.setColour(juce::ToggleButton::tickColourId, juce::Colours::darkviolet);
 
     disabledLookAndFeel.setColour(juce::Slider::thumbColourId, juce::Colours::dimgrey);
     disabledLookAndFeel.setColour(juce::Slider::backgroundColourId, sliderTrackFore);
@@ -204,6 +215,7 @@ FormantSynthAudioProcessorEditor::FormantSynthAudioProcessorEditor(FormantSynthA
         }
         audioProcessor.setFricativeLowCut();
     };
+    fricativeLowCutSlider.setLookAndFeel(&fricativeLookAndFeel);
 
     // Fricative high cut slider
     fricativeHighCutAttach = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>
@@ -217,6 +229,7 @@ FormantSynthAudioProcessorEditor::FormantSynthAudioProcessorEditor(FormantSynthA
         }
         audioProcessor.setFricativeHighCut();
     };
+    fricativeHighCutSlider.setLookAndFeel(&fricativeLookAndFeel);
 
     /*Filter*/
     // Phoneme slider
@@ -231,9 +244,11 @@ FormantSynthAudioProcessorEditor::FormantSynthAudioProcessorEditor(FormantSynthA
         updateFilterControls(audioProcessor.interpolatedPhoneme);
         phonemeLabel.setText(audioProcessor.interpolatedPhoneme.getName(), juce::dontSendNotification);
     };
+    phonemeSlider.setLookAndFeel(&filterLookAndFeel);
     addAndMakeVisible(&phonemeLabel);
     phonemeLabel.setText("Phoneme", juce::dontSendNotification);
     phonemeLabel.attachToComponent(&phonemeSlider, false);
+    phonemeLabel.setLookAndFeel(&textLookAndFeel);;
 
     // Formant shift slider
     formantShiftAttach = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>
@@ -245,12 +260,13 @@ FormantSynthAudioProcessorEditor::FormantSynthAudioProcessorEditor(FormantSynthA
         audioProcessor.setPhoneme(audioProcessor.phonemeVector, *audioProcessor.apvts.getRawParameterValue(PHONEME_ID));
         updateFilterControls(audioProcessor.interpolatedPhoneme);
     };
+    formantShiftSlider.setLookAndFeel(&filterLookAndFeel);
     addAndMakeVisible(&formantShiftLabel);
     formantShiftLabel.setText("Formant Shift", juce::dontSendNotification);
     formantShiftLabel.attachToComponent(&formantShiftSlider, false);
+    formantShiftLabel.setLookAndFeel(&textLookAndFeel);
 
     // Add phoneme button
-    addAndMakeVisible(&addPhonemeButton);
     addPhonemeButton.setButtonText("Add Phoneme");
     addPhonemeButton.onClick = [this] {
         audioProcessor.addPhonemeToVector(audioProcessor.interpolatedPhoneme);
@@ -262,14 +278,17 @@ FormantSynthAudioProcessorEditor::FormantSynthAudioProcessorEditor(FormantSynthA
     loadXmlButton.onClick = [this] {
         audioProcessor.loadButtonClicked();
     };
+    loadXmlButton.setLookAndFeel(&filterLookAndFeel);
 
     // Skirt width button
     skirtWidthAttach = std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>
         (audioProcessor.apvts, SKIRTWIDTH_ID, skirtWidthButton);
     addAndMakeVisible(&skirtWidthButton);
+    skirtWidthButton.setButtonText("Use Skirt Width");
     skirtWidthButton.onClick = [this] {
         audioProcessor.setSkirtWidth();
     };
+    skirtWidthButton.setLookAndFeel(&filterLookAndFeel);;
 
     // F1 frequency
     f1FreqAttach = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>
@@ -599,6 +618,7 @@ FormantSynthAudioProcessorEditor::FormantSynthAudioProcessorEditor(FormantSynthA
     vibratoFrequencySlider.onValueChange = [this] {
         audioProcessor.setVibratoFrequency();
     };
+    vibratoFrequencySlider.setLookAndFeel(&vibratoLookAndFeel);
     addAndMakeVisible(&vibratoFrequencyLabel);
     vibratoFrequencyLabel.setText("Freq", juce::dontSendNotification);
     vibratoFrequencyLabel.attachToComponent(&vibratoFrequencySlider, false);
@@ -615,6 +635,7 @@ FormantSynthAudioProcessorEditor::FormantSynthAudioProcessorEditor(FormantSynthA
     vibratoAttackSlider.onValueChange = [this] {
         audioProcessor.setVibratoAttack();
     };
+    vibratoAttackSlider.setLookAndFeel(&vibratoLookAndFeel);
     addAndMakeVisible(&vibratoAttackLabel);
     vibratoAttackLabel.setText("A", juce::dontSendNotification);
     vibratoAttackLabel.attachToComponent(&vibratoAttackSlider, false);
@@ -631,6 +652,7 @@ FormantSynthAudioProcessorEditor::FormantSynthAudioProcessorEditor(FormantSynthA
     vibratoSustainSlider.onValueChange = [this] {
         audioProcessor.setVibratoSustain();
     };
+    vibratoSustainSlider.setLookAndFeel(&vibratoLookAndFeel);
     addAndMakeVisible(&vibratoSustainLabel);
     vibratoSustainLabel.setText("S", juce::dontSendNotification);
     vibratoSustainLabel.attachToComponent(&vibratoSustainSlider, false);
@@ -647,6 +669,7 @@ FormantSynthAudioProcessorEditor::FormantSynthAudioProcessorEditor(FormantSynthA
     vibratoReleaseSlider.onValueChange = [this] {
         audioProcessor.setVibratoRelease();
     };
+    vibratoReleaseSlider.setLookAndFeel(&vibratoLookAndFeel);
     addAndMakeVisible(&vibratoReleaseLabel);
     vibratoReleaseLabel.setText("R", juce::dontSendNotification);
     vibratoReleaseLabel.attachToComponent(&vibratoReleaseSlider, false);
@@ -672,6 +695,7 @@ FormantSynthAudioProcessorEditor::FormantSynthAudioProcessorEditor(FormantSynthA
     fofGainLockAttach = std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>
         (audioProcessor.apvts, FOF_LOCK_ID, fofGainLockButton);
     addAndMakeVisible(&fofGainLockButton);
+    fofGainLockButton.setLookAndFeel(&mixerLookAndFeel);
 
     // BP Gain
     bpGainAttach = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>
@@ -693,6 +717,7 @@ FormantSynthAudioProcessorEditor::FormantSynthAudioProcessorEditor(FormantSynthA
     bpGainLockAttach = std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>
         (audioProcessor.apvts, BP_LOCK_ID, bpGainLockButton);
     addAndMakeVisible(&bpGainLockButton);
+    bpGainLockButton.setLookAndFeel(&mixerLookAndFeel);
 
     // Fricative Gain
     fricativeGainAttach = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>
@@ -714,6 +739,7 @@ FormantSynthAudioProcessorEditor::FormantSynthAudioProcessorEditor(FormantSynthA
     fricativeGainLockAttach = std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>
         (audioProcessor.apvts, FRICA_LOCK_ID, fricativeGainLockButton);
     addAndMakeVisible(&fricativeGainLockButton);
+    fricativeGainLockButton.setLookAndFeel(&mixerLookAndFeel);
 
 
     // Midi message table
@@ -750,6 +776,14 @@ void FormantSynthAudioProcessorEditor::resized()
     auto envelopeArea = area.removeFromBottom(area.getHeight() / 2);
     auto vibratoArea = area;
 
+    keyboardComponent.setBounds(keyboardArea);
+    headerWindow.setBounds(headerArea.reduced(windowBorder));
+    sourceWindow.setBounds(sourceArea.reduced(windowBorder));
+    filterWindow.setBounds(filterArea.reduced(windowBorder));
+    vibratoWindow.setBounds(vibratoArea.reduced(windowBorder));
+    envelopeWindow.setBounds(envelopeArea.reduced(windowBorder));
+    mixerWindow.setBounds(mixerArea.reduced(windowBorder));
+
     juce::FlexBox sourceFB;
     sourceFB.flexWrap = juce::FlexBox::Wrap::wrap;
     sourceFB.justifyContent = juce::FlexBox::JustifyContent::center;
@@ -774,49 +808,44 @@ void FormantSynthAudioProcessorEditor::resized()
 
     sourceFB.performLayout(sourceArea.reduced(objectBorder).toFloat());
 
-    
 
-    keyboardComponent.setBounds(keyboardArea);
-    headerWindow.setBounds(headerArea.reduced(windowBorder));
-    sourceWindow.setBounds(sourceArea.reduced(windowBorder));
-    filterWindow.setBounds(filterArea.reduced(windowBorder));
-    vibratoWindow.setBounds(vibratoArea.reduced(windowBorder));
-    envelopeWindow.setBounds(envelopeArea.reduced(windowBorder));
-    mixerWindow.setBounds(mixerArea.reduced(windowBorder));
+    auto envelopeHeaderArea = envelopeArea.removeFromTop(30);
 
-    auto envelopeHeaderArea = envelopeArea.removeFromTop(headerHeight);
+    loadXmlButton.setBounds(filterArea.removeFromTop(50).reduced(objectBorder));
 
     phonemeSlider.setBounds(filterArea.removeFromBottom(100).reduced(objectBorder));
     formantShiftSlider.setBounds(filterArea.removeFromBottom(100).reduced(objectBorder));
     skirtWidthButton.setBounds(filterArea.removeFromTop(50).removeFromLeft(filterArea.getWidth()/2).reduced(objectBorder));
-    loadXmlButton.setBounds(filterArea);
+    
 
     auto f1Area = formantArea.removeFromLeft(formantArea.getWidth() / 5);
-    f1FreqSlider.setBounds(f1Area.removeFromTop(f1Area.getHeight() / 3).reduced(0));
-    f1BandwidthSlider.setBounds(f1Area.removeFromTop(f1Area.getHeight() / 2).reduced(0));
-    f1GainSlider.setBounds(f1Area.reduced(0));
+    f1FreqSlider.setBounds(f1Area.removeFromTop(f1Area.getHeight() / 3).reduced(objectBorder));
+    f1BandwidthSlider.setBounds(f1Area.removeFromTop(f1Area.getHeight() / 2).reduced(objectBorder));
+    f1GainSlider.setBounds(f1Area.reduced(objectBorder));
     auto f2Area = formantArea.removeFromLeft(formantArea.getWidth() / 4);
-    f2FreqSlider.setBounds(f2Area.removeFromTop(f2Area.getHeight() / 3).reduced(0));
-    f2BandwidthSlider.setBounds(f2Area.removeFromTop(f2Area.getHeight() / 2).reduced(0));
-    f2GainSlider.setBounds(f2Area.reduced(0));
+    f2FreqSlider.setBounds(f2Area.removeFromTop(f2Area.getHeight() / 3).reduced(objectBorder));
+    f2BandwidthSlider.setBounds(f2Area.removeFromTop(f2Area.getHeight() / 2).reduced(objectBorder));
+    f2GainSlider.setBounds(f2Area.reduced(objectBorder));
     auto f3Area = formantArea.removeFromLeft(formantArea.getWidth() / 3);
-    f3FreqSlider.setBounds(f3Area.removeFromTop(f3Area.getHeight() / 3).reduced(0));
-    f3BandwidthSlider.setBounds(f3Area.removeFromTop(f3Area.getHeight() / 2).reduced(0));
-    f3GainSlider.setBounds(f3Area.reduced(0));
+    f3FreqSlider.setBounds(f3Area.removeFromTop(f3Area.getHeight() / 3).reduced(objectBorder));
+    f3BandwidthSlider.setBounds(f3Area.removeFromTop(f3Area.getHeight() / 2).reduced(objectBorder));
+    f3GainSlider.setBounds(f3Area.reduced(objectBorder));
     auto f4Area = formantArea.removeFromLeft(formantArea.getWidth() / 2);
-    f4FreqSlider.setBounds(f4Area.removeFromTop(f4Area.getHeight() / 3).reduced(0));
-    f4BandwidthSlider.setBounds(f4Area.removeFromTop(f4Area.getHeight() / 2).reduced(0));
-    f4GainSlider.setBounds(f4Area.reduced(0));
+    f4FreqSlider.setBounds(f4Area.removeFromTop(f4Area.getHeight() / 3).reduced(objectBorder));
+    f4BandwidthSlider.setBounds(f4Area.removeFromTop(f4Area.getHeight() / 2).reduced(objectBorder));
+    f4GainSlider.setBounds(f4Area.reduced(objectBorder));
     auto f5Area = formantArea.removeFromLeft(formantArea.getWidth() / 1);
-    f5FreqSlider.setBounds(f5Area.removeFromTop(f5Area.getHeight() / 3).reduced(0));
-    f5BandwidthSlider.setBounds(f5Area.removeFromTop(f5Area.getHeight() / 2).reduced(0));
-    f5GainSlider.setBounds(f5Area.reduced(0));
+    f5FreqSlider.setBounds(f5Area.removeFromTop(f5Area.getHeight() / 3).reduced(objectBorder));
+    f5BandwidthSlider.setBounds(f5Area.removeFromTop(f5Area.getHeight() / 2).reduced(objectBorder));
+    f5GainSlider.setBounds(f5Area.reduced(objectBorder));
 
     //table.setBounds(formantArea.reduced(objectBorder));
 
+    envelopeHeaderArea.removeFromTop(10);
     voiceEnvelopeLabel.setBounds(envelopeHeaderArea.removeFromLeft(envelopeHeaderArea.getWidth() / 2));
     fricativeEnvelopeLabel.setBounds(envelopeHeaderArea);
 
+    envelopeArea.removeFromTop(20);
     voiceAttackSlider.setBounds(envelopeArea.removeFromLeft(envelopeArea.getWidth() / 9).reduced(objectBorder));
     voiceDecaySlider.setBounds(envelopeArea.removeFromLeft(envelopeArea.getWidth() / 8).reduced(objectBorder));
     voiceSustainSlider.setBounds(envelopeArea.removeFromLeft(envelopeArea.getWidth() / 7).reduced(objectBorder));
@@ -827,15 +856,18 @@ void FormantSynthAudioProcessorEditor::resized()
     fricativeSustainSlider.setBounds(envelopeArea.removeFromLeft(envelopeArea.getWidth() / 2).reduced(objectBorder));
     fricativeReleaseSlider.setBounds(envelopeArea.removeFromLeft(envelopeArea.getWidth()).reduced(objectBorder));
 
+    mixerArea.removeFromTop(20);
     auto mixerLockArea = mixerArea.removeFromRight(60);
     fofGainSlider.setBounds(mixerArea.removeFromTop(mixerArea.getHeight()/3).reduced(objectBorder));
     bpGainSlider.setBounds(mixerArea.removeFromTop(mixerArea.getHeight() / 2).reduced(objectBorder));
     fricativeGainSlider.setBounds(mixerArea.removeFromTop(mixerArea.getHeight()).reduced(objectBorder));
-    fofGainLockButton.setBounds(mixerLockArea.removeFromTop(mixerLockArea.getHeight() / 3).reduced(objectBorder));
-    bpGainLockButton.setBounds(mixerLockArea.removeFromTop(mixerLockArea.getHeight() / 2).reduced(objectBorder));
-    fricativeGainLockButton.setBounds(mixerLockArea.removeFromTop(mixerLockArea.getHeight()).reduced(objectBorder));
-
+    fofGainLockButton.setBounds(mixerLockArea.removeFromTop(mixerLockArea.getHeight() / 3).reduced(0));
+    bpGainLockButton.setBounds(mixerLockArea.removeFromTop(mixerLockArea.getHeight() / 2).reduced(0));
+    fricativeGainLockButton.setBounds(mixerLockArea.removeFromTop(mixerLockArea.getHeight()).reduced(0));
+    
+    vibratoArea.removeFromTop(10);
     vibratoLabel.setBounds(vibratoArea.removeFromTop(headerHeight));
+    vibratoArea.removeFromTop(20);
     vibratoFrequencySlider.setBounds(vibratoArea.removeFromLeft(vibratoArea.getWidth() / 5).reduced(objectBorder));
     vibratoArea.removeFromLeft(vibratoArea.getWidth() / 4);
     vibratoAttackSlider.setBounds(vibratoArea.removeFromLeft(vibratoArea.getWidth() / 3).reduced(objectBorder));
