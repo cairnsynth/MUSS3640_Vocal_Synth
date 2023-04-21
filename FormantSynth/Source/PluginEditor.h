@@ -20,29 +20,45 @@ public:
     void paint (juce::Graphics&) override;
     void resized() override;
 
+    /* --updateFilterControls(Phoneme p)--
+    * Sets GUI controls to match values stored in the audio processor value tree
+    * Maintains sync between plugin processor and editor
+    */
     void updateFilterControls(Phoneme p);
-    void updateFormant(int f, float freq, float bw, float gain);
 
-    //juce::MidiKeyboardState keyboardState;
 
 private:
     FormantSynthAudioProcessor& audioProcessor;
 
+    /*--handleNoteOn(juce::MidiKeyboardState*, int midiChannel, int midiNoteNumber, float velocity)--
+    * virtual implementation from MidiInputCallback
+    * Triggers key on in audio processor
+    */
     void handleNoteOn(juce::MidiKeyboardState*, int midiChannel, int midiNoteNumber, float velocity) override;
+
+    /* --handleNoteOff(juce::MidiKeyboardState*, int midiChannel, int midiNoteNumber, float velocity)--
+    * virtual implementation from MidiInputCallback
+    * Triggers key off in audio processor 
+    */
     void handleNoteOff(juce::MidiKeyboardState*, int midiChannel, int midiNoteNumber, float /*velocity*/) override;
+
+    /*--handleIncomingMidiMessage(juce::MidiInput* source, const juce::MidiMessage& message)--
+    * virtual implementation from MidiInputCallBack
+    */
     void handleIncomingMidiMessage(juce::MidiInput* source, const juce::MidiMessage& message) override;
 
+    /*--enableSourceGui(int sourceWave)--
+    * Sets source GUI controls enabled/disabled based on selected source
+    *   sourceWave = selected source
+    */
     void enableSourceGui(int sourceWave);
 
-    //MidiTable table;
-    
-    juce::MidiKeyboardComponent keyboardComponent;
+    juce::MidiKeyboardComponent keyboardComponent;  // GUI keyboard
 
     /*GUI Objects*/
     // Colouring
     juce::Colour sliderTrackFore = juce::Colour(0xFFC0C0C0);
     juce::Colour sliderTrackBack = juce::Colour(0xFFB0B0B0);
-
     juce::LookAndFeel_V4 textLookAndFeel;
     juce::LookAndFeel_V4 windowLookAndFeel;
     juce::LookAndFeel_V4 sourceLookAndFeel;
@@ -51,6 +67,7 @@ private:
     juce::LookAndFeel_V4 vibratoLookAndFeel;
     juce::LookAndFeel_V4 mixerLookAndFeel;
     juce::LookAndFeel_V4 disabledLookAndFeel;
+
     // Mixer
     juce::Slider fofGainSlider;
     juce::Label fofGainLabel;
@@ -81,21 +98,14 @@ private:
     juce::Slider fricativeHighCutSlider;
     juce::ToggleButton monoButton;
     
-
     // Filter
     juce::Label phonemeLabel;
     juce::Slider phonemeSlider;
     juce::Label formantShiftLabel;
     juce::Slider formantShiftSlider;
-
     juce::TextButton addPhonemeButton;
-
     juce::ToggleButton skirtWidthButton;
-
     juce::TextButton loadXmlButton;
-    std::unique_ptr<juce::XmlElement> fileData;
-    juce::XmlElement* columnList = nullptr;
-    juce::XmlElement* dataList = nullptr;
 
     juce::Slider f1FreqSlider;
     juce::Slider f1BandwidthSlider;
@@ -157,8 +167,9 @@ private:
     juce::TextButton envelopeWindow;
     juce::TextButton mixerWindow;
 
-    // GUI element attachments must be destructed before the associated gui element
-    // Destructed from bottom up
+    /*Audio processor value tree attachments for GUI elements*/
+    // GUI element attachments must be destroyed before the associated gui element
+    // Destroyed from bottom up
     std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> bpSourceWaveComboAttach;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> bpSourcePwSliderAttach;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> bpSourcePressureAttach;

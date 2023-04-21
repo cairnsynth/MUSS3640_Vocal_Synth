@@ -6,17 +6,15 @@ FormantSynthAudioProcessorEditor::FormantSynthAudioProcessorEditor(FormantSynthA
     : AudioProcessorEditor(&p), audioProcessor(p),
     keyboardComponent(audioProcessor.keyboardState,
         juce::MidiKeyboardComponent::horizontalKeyboard)
-    //table(p.midiModel)
 {
-    // Audio Processor Value Tree attachments
     
 
-    setSize (900, 550);
-    setResizable(true, false);
+    setSize (900, 550);  // Set default window size
+    setResizable(true, false);  // Make window resizable
 
     /*GUI Initialisation*/
+    // Set look and feel colours
     textLookAndFeel.setColour(juce::Label::textColourId, juce::Colours::darkgrey);
-
     windowLookAndFeel.setColour(juce::TextButton::buttonColourId, juce::Colours::gainsboro);
 
     sourceLookAndFeel.setColour(juce::Slider::thumbColourId, juce::Colours::coral);
@@ -53,7 +51,7 @@ FormantSynthAudioProcessorEditor::FormantSynthAudioProcessorEditor(FormantSynthA
     disabledLookAndFeel.setColour(juce::Slider::backgroundColourId, sliderTrackFore);
     disabledLookAndFeel.setColour(juce::Slider::trackColourId, sliderTrackBack);
 
-    // GUI windows
+    /*GUI windows*/
     addAndMakeVisible(&headerWindow);
     headerWindow.setLookAndFeel(&windowLookAndFeel);
     headerWindow.setButtonText("");
@@ -84,11 +82,12 @@ FormantSynthAudioProcessorEditor::FormantSynthAudioProcessorEditor(FormantSynthA
     mixerWindow.setButtonText("");
     mixerWindow.setEnabled(false);
 
-    // Keyboard
+    /*Keyboard*/
     addAndMakeVisible(&keyboardComponent);
     audioProcessor.keyboardState.addListener(this);
     keyboardComponent.setLookAndFeel(&sourceLookAndFeel);
 
+    /*Source controls*/
     // Bandpass source label
     addAndMakeVisible(&bpSourceLabel);
     bpSourceLabel.setText("Bandpass Source", juce::dontSendNotification);
@@ -125,7 +124,6 @@ FormantSynthAudioProcessorEditor::FormantSynthAudioProcessorEditor(FormantSynthA
     };
     addAndMakeVisible(&bpSourcePwLabel);
     bpSourcePwLabel.setText("Pulsewidth", juce::dontSendNotification);
-    //bpSourcePwLabel.attachToComponent(&bpSourcePwSlider, true);
     bpSourcePwLabel.setLookAndFeel(&textLookAndFeel);
 
     // Bandpass source pressure (glottal model)
@@ -141,7 +139,6 @@ FormantSynthAudioProcessorEditor::FormantSynthAudioProcessorEditor(FormantSynthA
     };
     addAndMakeVisible(&bpSourcePressureLabel);
     bpSourcePressureLabel.setText("Pressure", juce::dontSendNotification);
-    //bpSourcePressureLabel.attachToComponent(&bpSourcePressureSlider, false);
     bpSourcePressureLabel.setLookAndFeel(&textLookAndFeel);
 
     // Bandpass source T0 (glottal model)
@@ -157,7 +154,6 @@ FormantSynthAudioProcessorEditor::FormantSynthAudioProcessorEditor(FormantSynthA
     };
     addAndMakeVisible(&bpSourceT0Label);
     bpSourceT0Label.setText("T0", juce::dontSendNotification);
-    //bpSourceT0Label.attachToComponent(&bpSourceT0Slider, false);
     bpSourceT0Label.setLookAndFeel(&textLookAndFeel);
 
     // Bandpass source Te (glottal model)
@@ -173,7 +169,6 @@ FormantSynthAudioProcessorEditor::FormantSynthAudioProcessorEditor(FormantSynthA
     };
     addAndMakeVisible(&bpSourceTeLabel);
     bpSourceTeLabel.setText("Te", juce::dontSendNotification);
-    //bpSourceTeLabel.attachToComponent(&bpSourceTeSlider, false);
     bpSourceTeLabel.setLookAndFeel(&textLookAndFeel);
 
     // Bandpass source noise (glottal model)
@@ -189,7 +184,6 @@ FormantSynthAudioProcessorEditor::FormantSynthAudioProcessorEditor(FormantSynthA
     };
     addAndMakeVisible(&bpSourceNoiseLabel);
     bpSourceNoiseLabel.setText("Noise", juce::dontSendNotification);
-    //bpSourceNoiseLabel.attachToComponent(&bpSourceNoiseSlider, false);
     bpSourceNoiseLabel.setLookAndFeel(&textLookAndFeel);
 
     // Fricative colour slider
@@ -231,7 +225,7 @@ FormantSynthAudioProcessorEditor::FormantSynthAudioProcessorEditor(FormantSynthA
     };
     fricativeHighCutSlider.setLookAndFeel(&fricativeLookAndFeel);
 
-    /*Filter*/
+    /*Filter controls*/
     // Phoneme slider
     phonemeAttach = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>
         (audioProcessor.apvts, PHONEME_ID, phonemeSlider);
@@ -456,6 +450,8 @@ FormantSynthAudioProcessorEditor::FormantSynthAudioProcessorEditor(FormantSynthA
     f5GainSlider.onValueChange = [this] {
         audioProcessor.setF5Gain();
     };
+
+    /*Envelope controls*/
     // Voice envelope label
     addAndMakeVisible(&voiceEnvelopeLabel);
     voiceEnvelopeLabel.setText("Voice", juce::dontSendNotification);
@@ -602,6 +598,7 @@ FormantSynthAudioProcessorEditor::FormantSynthAudioProcessorEditor(FormantSynthA
     fricativeReleaseLabel.attachToComponent(&fricativeReleaseSlider, false);
     fricativeReleaseLabel.setLookAndFeel(&textLookAndFeel);
 
+    /*Vibrato controls*/
     // Vibrato label
     addAndMakeVisible(&vibratoLabel);
     vibratoLabel.setText("Vibrato", juce::dontSendNotification);
@@ -675,6 +672,7 @@ FormantSynthAudioProcessorEditor::FormantSynthAudioProcessorEditor(FormantSynthA
     vibratoReleaseLabel.attachToComponent(&vibratoReleaseSlider, false);
     vibratoReleaseLabel.setLookAndFeel(&textLookAndFeel);
 
+    /*Mixer controls*/
     // FOF Gain
     fofGainAttach = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>
         (audioProcessor.apvts, FOF_GAIN_ID, fofGainSlider);
@@ -740,10 +738,6 @@ FormantSynthAudioProcessorEditor::FormantSynthAudioProcessorEditor(FormantSynthA
         (audioProcessor.apvts, FRICA_LOCK_ID, fricativeGainLockButton);
     addAndMakeVisible(&fricativeGainLockButton);
     fricativeGainLockButton.setLookAndFeel(&mixerLookAndFeel);
-
-
-    // Midi message table
-    //addAndMakeVisible(&table);
 }
 
 FormantSynthAudioProcessorEditor::~FormantSynthAudioProcessorEditor()
@@ -754,8 +748,7 @@ FormantSynthAudioProcessorEditor::~FormantSynthAudioProcessorEditor()
 //==============================================================================
 void FormantSynthAudioProcessorEditor::paint (juce::Graphics& g)
 {
-    // (Our component is opaque, so we must completely fill the background with a solid colour)
-    g.fillAll (sliderTrackFore);
+    g.fillAll (sliderTrackFore);  // Fill window background
 }
 
 void FormantSynthAudioProcessorEditor::resized()
@@ -876,9 +869,7 @@ void FormantSynthAudioProcessorEditor::resized()
 
 }
 
-void FormantSynthAudioProcessorEditor::handleIncomingMidiMessage(juce::MidiInput* source, const juce::MidiMessage& message)
-{
-}
+void FormantSynthAudioProcessorEditor::handleIncomingMidiMessage(juce::MidiInput* source, const juce::MidiMessage& message) {}
 
 void FormantSynthAudioProcessorEditor::handleNoteOn(juce::MidiKeyboardState*, int midiChannel, int midiNoteNumber, float velocity)
 {
@@ -944,9 +935,6 @@ void FormantSynthAudioProcessorEditor::enableSourceGui(int sourceWave)
 
 void FormantSynthAudioProcessorEditor::updateFilterControls(Phoneme p)
 {
-    //fofGainSlider.setValue(p.getFofGain());
-    //bpGainSlider.setValue(p.getBpGain());
-
     f1FreqSlider.setValue(p.getFrequency(0));
     f1BandwidthSlider.setValue(p.getBandwidth(0));
     f1GainSlider.setValue(p.getGain(0));

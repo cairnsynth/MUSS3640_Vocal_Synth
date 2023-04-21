@@ -6,25 +6,25 @@ FormantSynthAudioProcessor::FormantSynthAudioProcessor()
 #ifndef JucePlugin_PreferredChannelConfigurations
     : AudioProcessor(BusesProperties().withOutput("Output", juce::AudioChannelSet::stereo(), true)
     ),
-    apvts(*this, nullptr, "PARAMETERS", createParameterLayout())
+    apvts(*this, nullptr, "PARAMETERS", createParameterLayout())  // Initialise value tree
 #endif
 {
-    initialisePhonemes();
-    startTimerHz(60);
-    dsp.start();
+    initialisePhonemes();  // Load default phoneme values
+    startTimerHz(60);  // Start Midi input timer at 60Hz frequency
+    dsp.start();  // Start Faust DSP code
 }
 
 FormantSynthAudioProcessor::~FormantSynthAudioProcessor()
 {
-    stopTimer();
-    dsp.stop();
+    stopTimer();  // Stop timer when plugin exits
+    dsp.stop();  // Stop DSP when plugin exits
 }
 
 //==============================================================================
 
 juce::AudioProcessorValueTreeState::ParameterLayout FormantSynthAudioProcessor::createParameterLayout()
 {
-    std::vector<std::unique_ptr<juce::RangedAudioParameter>> params;
+    std::vector<std::unique_ptr<juce::RangedAudioParameter>> params;  // Temporary vector of parameters to load into value tree
     // Source parameter creation
     auto sourceWaveParam = std::make_unique<juce::AudioParameterInt>(SOURCE_WAVE_ID, "Source Waveform", 0, 2, 0);
     params.push_back(std::move(sourceWaveParam));
@@ -51,7 +51,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout FormantSynthAudioProcessor::
     params.push_back(std::move(formantShiftParam));
     auto skirtWidthParam = std::make_unique<juce::AudioParameterBool>(SKIRTWIDTH_ID, "Use Skirt Width", 1);
     params.push_back(std::move(skirtWidthParam));
-
+    // Formant parameter creation
     auto f1FreqParam = std::make_unique<juce::AudioParameterFloat>(F1_FREQ_ID, "Formant 1 Frequency", 20.0f, 20000.0f, 800.0f);
     params.push_back(std::move(f1FreqParam));
     auto f1BandwidthParam = std::make_unique<juce::AudioParameterFloat>(F1_BW_ID, "Formant 1 Bandwidth", 20.0f, 10000.0f, 80.0f);
@@ -86,7 +86,6 @@ juce::AudioProcessorValueTreeState::ParameterLayout FormantSynthAudioProcessor::
     params.push_back(std::move(f5BandwidthParam));
     auto f5GainParam = std::make_unique<juce::AudioParameterFloat>(F5_GAIN_ID, "Formant 5 Gain", 0.0f, 1.0f, 1.0f);
     params.push_back(std::move(f5GainParam));
-
     // Vibrato parameter creation
     auto vibratoFreqParam = std::make_unique<juce::AudioParameterFloat>(VIBRATO_FREQUENCY_ID, "Vibrato Frequency", 0.0f, 8.0f, 5.0f);
     params.push_back(std::move(vibratoFreqParam));
@@ -128,12 +127,13 @@ juce::AudioProcessorValueTreeState::ParameterLayout FormantSynthAudioProcessor::
     auto fricativeGainLockParam = std::make_unique<juce::AudioParameterBool>(FRICA_LOCK_ID, "Fricative Gain Lock", false);
     params.push_back(std::move(fricativeGainLockParam));
 
-    return { params.begin(), params.end() };
+    return { params.begin(), params.end() };  // Returns parameter vector
 }
 
 void FormantSynthAudioProcessor::initialisePhonemes()
 {
-    Phoneme defaultA;
+    Phoneme defaultA;  // Temporary phoneme object to store defaut values
+    // Setting intial formant values of the phoneme
     defaultA.setFormant(0, 600, 60, 1.0);
     defaultA.setFormant(1, 1040, 70, 0.199526);
     defaultA.setFormant(2, 2250, 110, 0.1259);
@@ -168,7 +168,7 @@ void FormantSynthAudioProcessor::initialisePhonemes()
     defaultU.setFormant(3, 2675, 120, 0.001585);
     defaultU.setFormant(4, 2950, 120, 0.001585);
     defaultU.setName("U");
-
+    // Add default phoneme objects to phoneme vector
     phonemeVector.push_back(std::move(defaultA));
     phonemeVector.push_back(std::move(defaultE));
     phonemeVector.push_back(std::move(defaultI));
@@ -224,29 +224,16 @@ int FormantSynthAudioProcessor::getCurrentProgram()
     return 0;
 }
 
-void FormantSynthAudioProcessor::setCurrentProgram (int index)
-{
-}
+void FormantSynthAudioProcessor::setCurrentProgram(int index) {}
 
-const juce::String FormantSynthAudioProcessor::getProgramName (int index)
-{
-    return {};
-}
+const juce::String FormantSynthAudioProcessor::getProgramName (int index) { return {}; }
 
-void FormantSynthAudioProcessor::changeProgramName (int index, const juce::String& newName)
-{
-}
+void FormantSynthAudioProcessor::changeProgramName (int index, const juce::String& newName) {}
 
 //==============================================================================
-void FormantSynthAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
-{
-}
+void FormantSynthAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock) {}
 
-void FormantSynthAudioProcessor::releaseResources()
-{
-    // When playback stops, you can use this as an opportunity to free up any
-    // spare memory, etc.
-}
+void FormantSynthAudioProcessor::releaseResources() {}
 
 #ifndef JucePlugin_PreferredChannelConfigurations
 bool FormantSynthAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts) const
@@ -255,20 +242,13 @@ bool FormantSynthAudioProcessor::isBusesLayoutSupported (const BusesLayout& layo
     juce::ignoreUnused (layouts);
     return true;
   #else
-    // This is the place where you check if the layout is supported.
-    // In this template code we only support mono or stereo.
-    // Some plugin hosts, such as certain GarageBand versions, will only
-    // load plugins that support stereo bus layouts.
     if (layouts.getMainOutputChannelSet() != juce::AudioChannelSet::mono()
      && layouts.getMainOutputChannelSet() != juce::AudioChannelSet::stereo())
         return false;
-
-    // This checks if the input layout matches the output layout
    #if ! JucePlugin_IsSynth
     if (layouts.getMainOutputChannelSet() != layouts.getMainInputChannelSet())
         return false;
    #endif
-
     return true;
   #endif
 }
@@ -276,58 +256,51 @@ bool FormantSynthAudioProcessor::isBusesLayoutSupported (const BusesLayout& layo
 
 void FormantSynthAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
-    midiQueue.push(midiMessages);
-
-    buffer.clear();
-    processMidi();
-
-    
+    midiQueue.push(midiMessages); // Push new MIDI messages onto queue
+    buffer.clear();  // Clear output buffer, as DSP code handles audio output
+    processMidi();  // Trigger notes based off incoming MIDI messages
 }
 
 void FormantSynthAudioProcessor::timerCallback()
 {
-    std::vector<juce::MidiMessage> messages;
-    midiQueue.pop(std::back_inserter(messages));
-    midiModel.addMessages(messages.begin(), messages.end());
-    
+    std::vector<juce::MidiMessage> messages;  // Vector to store messages
+    midiQueue.pop(std::back_inserter(messages));  // Pop messages from queue into vector
+    midiModel.addMessages(messages.begin(), messages.end());  // Insert messages into midiModel for processing
 }
 
 void FormantSynthAudioProcessor::processMidi()
 {  
-    
-    for (juce::MidiMessage m : midiModel.newMessages) {
-        if (m.isNoteOn()) {
-            int isOnFlag = 0;
-            for (auto i = voiceKeys.begin(); i != voiceKeys.end(); ++i) {
-                if (m.getNoteNumber() == *i) {
-                    isOnFlag = 1;
+    for (juce::MidiMessage m : midiModel.newMessages) {  // Loop through MIDI messages stored in midiModel
+        if (m.isNoteOn()) {  // If MIDI message is a 'Note On' message
+            bool isOnFlag = 0;  // Note on flag
+            for (auto i = voiceKeys.begin(); i != voiceKeys.end(); ++i) {  // Loop through active keys
+                if (m.getNoteNumber() == *i) {  // If key is already on
+                    isOnFlag = 1;  // Set flag
                 }
             }
-            if (!isOnFlag) {
-                keyOn(m.getNoteNumber(), m.getVelocity());
-                voiceKeys.push_back(m.getNoteNumber());
+            if (!isOnFlag) {  // If key is not already on
+                keyOn(m.getNoteNumber(), m.getVelocity());  // Create new DSP voice with pitch, velocity from MIDI message
+                voiceKeys.push_back(m.getNoteNumber());  // Add key to list of active keys
             }
-            isOnFlag = 0;
+            isOnFlag = 0;  // Reset flag
         }
-        if (m.isNoteOff()) {
-            for (auto i = voiceKeys.begin(); i != voiceKeys.end(); ++i) {
-                if (m.getNoteNumber() == *i) {
-                    keyOff(m.getNoteNumber());
-                    voiceKeys.erase(i);
+        if (m.isNoteOff()) {  // If MIDI message is a 'Note Off' message
+            for (auto i = voiceKeys.begin(); i != voiceKeys.end(); ++i) {  // Loop through active keys
+                if (m.getNoteNumber() == *i) {  // If MIDI message key matches active key
+                    keyOff(m.getNoteNumber());  // Destroy DSP voice
+                    voiceKeys.erase(i);  // Remove key from active keys
                 }
             }
         }
-        if (m.isAllNotesOff()) {
-            dsp.allNotesOff();
+        if (m.isAllNotesOff()) {  // If MIDI message is 'All Notes Off' message
+            dsp.allNotesOff();  // Destroys all DSP voices
+            voiceKeys.clear();  // Clear active voices
         }
     }
 }
 
 //==============================================================================
-bool FormantSynthAudioProcessor::hasEditor() const
-{
-    return true; // (change this to false if you choose to not supply an editor)
-}
+bool FormantSynthAudioProcessor::hasEditor() const { return true; }
 
 juce::AudioProcessorEditor* FormantSynthAudioProcessor::createEditor()
 {
@@ -338,19 +311,36 @@ juce::AudioProcessorEditor* FormantSynthAudioProcessor::createEditor()
 /* getStateInformation / setStateInformation Reference :
 *  https://docs.juce.com/master/tutorial_audio_processor_value_tree_state.html
 */
+
+/* --getStateInformation(juce::MemoryBlock& destData)-- 
+* Handles saving values of parameters when instance of plugin is closed
+* Called by DAW on saving a project
+* 
+* REFERENCE:
+*   https://docs.juce.com/master/tutorial_audio_processor_value_tree_state.html
+*/
 void FormantSynthAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
 {
-    auto state = apvts.copyState();
-    std::unique_ptr<juce::XmlElement> stateXml(state.createXml());
-    copyXmlToBinary(*stateXml, destData);
+    auto state = apvts.copyState();  // Copy values from value tree into temp state
+    std::unique_ptr<juce::XmlElement> stateXml(state.createXml());  // Create XML tree of state
+    copyXmlToBinary(*stateXml, destData);  // save XML tree into destination as binary
 }
 
+/* --setStateInformation(const void* data, int sizeInBytes)--
+
+* Handles loading of parameters into value tree when new instance of plugin is
+* opened
+* Called by DAW on opening a saved project
+* 
+* REFERENCE:
+*   https://docs.juce.com/master/tutorial_audio_processor_value_tree_state.html
+*/
 void FormantSynthAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
-    std::unique_ptr<juce::XmlElement> stateXml(getXmlFromBinary(data, sizeInBytes));
-    if (stateXml.get() != nullptr) {
-        if (stateXml->hasTagName(apvts.state.getType())) {
-            apvts.replaceState(juce::ValueTree::fromXml(*stateXml));
+    std::unique_ptr<juce::XmlElement> stateXml(getXmlFromBinary(data, sizeInBytes));  // convert provided binary to XML tree
+    if (stateXml.get() != nullptr) {  // If there is data
+        if (stateXml->hasTagName(apvts.state.getType())) {  // If XML data matches type of value tree
+            apvts.replaceState(juce::ValueTree::fromXml(*stateXml));  // Set values in value tree to values stored in data
         }
     }
 }
@@ -367,15 +357,16 @@ juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 
 void FormantSynthAudioProcessor::keyOn(int key, int velocity)
 {
-    //MONO NOT IMPLEMENTED
-    if (1) {
-        dsp.keyOn(key, velocity);
+    // If statement to switch between monophonic/polyphonic voice creation
+    if (1) {  // If polyphonic. Always true; mono not fully implemented
+        dsp.keyOn(key, velocity);  // Create new DSP voice with given key, velocity
     }
-    else {
-        if (monoVoiceId == 0) {
-            monoVoiceId = dsp.keyOn(key, velocity);
+    else {  // If monophonic
+        if (monoVoiceId == 0) {  // If mono voice does not yet exist
+            monoVoiceId = dsp.keyOn(key, velocity);  // Create new DSP voice with given key, velocity
         }
-        else {
+        else {  // If mono voice exists
+            // Update mono voice with new key, velocity, and trigger gate
             dsp.setVoiceParamValue("/FormantSynth/freq", monoVoiceId, juce::MidiMessage::getMidiNoteInHertz(key));
             dsp.setVoiceParamValue("/FormantSynth/gate", monoVoiceId, 1);
             dsp.setVoiceParamValue("/FormantSynth/gain", monoVoiceId, velocity);
@@ -385,12 +376,12 @@ void FormantSynthAudioProcessor::keyOn(int key, int velocity)
 
 void FormantSynthAudioProcessor::keyOff(int key)
 {
-    //MONO NOT IMPLEMENTED
-    if (1) {
-        dsp.keyOff(key);
+    // If statement to switch between monophonic/polyphonic voice destruction
+    if (1) {  // If polyphonic. Always true; mono not fully implemented
+        dsp.keyOff(key);  // Destroy DSP voice associated with key
     }
-    else {
-        dsp.setVoiceParamValue("/FormantSynth/gate", monoVoiceId, 0);
+    else {  // If monophonic
+        dsp.setVoiceParamValue("/FormantSynth/gate", monoVoiceId, 0);  // Turn off mono voice gate
     }
 }
 /*DSP Setters*/
@@ -566,11 +557,6 @@ void FormantSynthAudioProcessor::setFricativeGain()
     dsp.setParamValue("/Polyphonic/Voices/FormantSynth/voice/mixer/fricativeGain", *apvts.getRawParameterValue(FRICA_GAIN_ID));
 }
 
-float FormantSynthAudioProcessor::getCpuLoad()
-{
-    return dsp.getCPULoad();
-}
-
 void FormantSynthAudioProcessor::addPhonemeToVector(Phoneme p)
 {
     phonemeVector.push_back(std::move(p));
@@ -588,24 +574,22 @@ void FormantSynthAudioProcessor::setSkirtWidth()
 
 void FormantSynthAudioProcessor::setPhoneme(std::vector<Phoneme> pVector, float val)
 {
-    int nPhonemes = pVector.size();
-    float interpolationVal = val / apvts.getParameterRange(PHONEME_ID).end;
+    int nPhonemes = pVector.size();  // Get number of phonemes stored in phoneme vector
+    float interpolationVal = val / apvts.getParameterRange(PHONEME_ID).end;  // Map interpolation value to (0.0f - 1.0f)
 
-    /*if (nPhonemes == 1) {
-        interpolatedPhoneme = interpola
-    }*/
-    float phonemeSpacing = interpolationVal / (nPhonemes-1);
-    float scaledInterpolationValue = interpolationVal * (nPhonemes-1);
-    float interpolationOff = 0;
-    float normalisedInterpolationValue = std::modf(scaledInterpolationValue, &interpolationOff);
-    int integralOffset = static_cast<int>(interpolationOff);
-    if (integralOffset == nPhonemes - 1) {
-        interpolatedPhoneme = interpolatePhonemes(phonemeVector[integralOffset], phonemeVector[integralOffset], 0);
+    float scaledInterpolationValue = interpolationVal * (nPhonemes-1);  // Scale interpolation value so each phoneme occurs at integer value
+    float interpolationOff = 0;  // Float to store interpolation offset (integer part of interpolation value)
+    float normalisedInterpolationValue = std::modf(scaledInterpolationValue, &interpolationOff);  // Gets floating part of interpolation value
+    int integralOffset = static_cast<int>(interpolationOff);  // Cast interpolation offset to integer
+    if (integralOffset == nPhonemes - 1) {  // If last phoneme is selected
+        interpolatedPhoneme = interpolatePhonemes(phonemeVector[integralOffset], phonemeVector[integralOffset], 0);  // interpolated phoneme = last phoneme
+        // Prevents out of bounds error by interpolating beyond end of vector
     }
     else {
+        // Interpolate phonemes
         interpolatedPhoneme = interpolatePhonemes(phonemeVector[integralOffset], phonemeVector[integralOffset + 1], normalisedInterpolationValue);
     }
-
+    // Set DSP parameters to new phoneme values
     setF1Freq();
     setF1Bandwidth();
     setF1Gain();
@@ -627,9 +611,9 @@ void FormantSynthAudioProcessor::setPhoneme(std::vector<Phoneme> pVector, float 
     setFricativeDecay();
     setFricativeSustain();
     setFricativeRelease();
-
+    // Set vowel number for skirt width multiplication
     setVowelNumber();
-
+    // Do not update mixer gains if gains are locked
     if (*apvts.getRawParameterValue(FRICA_LOCK_ID) != 1) { setFricativeGain(); }
     if (*apvts.getRawParameterValue(FOF_LOCK_ID) != 1) { setFofGain(); }
     if (*apvts.getRawParameterValue(BP_LOCK_ID) != 1) { setBpGain(); }
@@ -638,107 +622,93 @@ void FormantSynthAudioProcessor::setPhoneme(std::vector<Phoneme> pVector, float 
 
 Phoneme FormantSynthAudioProcessor::interpolatePhonemes(Phoneme p1, Phoneme p2, float val)
 {
-    Phoneme tempPhoneme;
-    if (val == 0.0) {
-        tempPhoneme.setName(p1.getName());
+    Phoneme tempPhoneme;  // Temp phoneme object
+    if (val == 0.0) {  // If phoneme is directly selected
+        tempPhoneme.setName(p1.getName());  // Set display name to phoneme name
     }
-    else {
-        tempPhoneme.setName(p1.getName() + "->" + p2.getName());
+    else {  // If point between phonemes is selected
+        tempPhoneme.setName(p1.getName() + "->" + p2.getName());  // Set display name to demonstrate phonemes have been interpolated
     }
-    for (int i = 0; i < 5; i++) {
+    for (int i = 0; i < 5; i++) {  // Loop through formants in phoneme
+        // Set frequency, bandwidth, gain of temp phoneme to interpolated values
         tempPhoneme.setFrequency(i, (lerp(p1.getFrequency(i), p2.getFrequency(i), val) + *apvts.getRawParameterValue(FORMANT_SHIFT_ID)));
         tempPhoneme.setBandwidth(i, lerp(p1.getBandwidth(i), p2.getBandwidth(i), val));
         tempPhoneme.setGain(i, lerp(p1.getGain(i), p2.getGain(i), val));
     }
-    tempPhoneme.setFofGain(lerp(p1.getFofGain(), p2.getFofGain(), val));
-    tempPhoneme.setBpGain(lerp(p1.getBpGain(), p2.getBpGain(), val));
+    tempPhoneme.setFofGain(lerp(p1.getFofGain(), p2.getFofGain(), val));  // Set FOF gain to interpolated value
+    tempPhoneme.setBpGain(lerp(p1.getBpGain(), p2.getBpGain(), val));  // Set bandpass gain to interpolated value
     tempPhoneme.setFricativeColour(lerp(p1.getFricativeLow(), p2.getFricativeLow(), val),
-        lerp(p1.getFricativeHigh(), p2.getFricativeHigh(), val));
-    tempPhoneme.setFricativeGain(lerp(p1.getFricativeGain(), p2.getFricativeGain(), val));
-    tempPhoneme.setFricativeAttack(lerp(p1.getFricativeAttack(), p2.getFricativeAttack(), val));
-    tempPhoneme.setFricativeDecay(lerp(p1.getFricativeDecay(), p2.getFricativeDecay(), val));
-    tempPhoneme.setFricativeSustain(lerp(p1.getFricativeSustain(), p2.getFricativeSustain(), val));
-    tempPhoneme.setFricativeRelease(lerp(p1.getFricativeRelease(), p2.getFricativeRelease(), val));
+        lerp(p1.getFricativeHigh(), p2.getFricativeHigh(), val));  // Set fricative bandpass filter to interpolated values
+    tempPhoneme.setFricativeGain(lerp(p1.getFricativeGain(), p2.getFricativeGain(), val));  // Set fricative gain to interpolated value
+    tempPhoneme.setFricativeAttack(lerp(p1.getFricativeAttack(), p2.getFricativeAttack(), val));  // Set fricative attack to interpolated value
+    tempPhoneme.setFricativeDecay(lerp(p1.getFricativeDecay(), p2.getFricativeDecay(), val));  // Set fricative decay to interpolated value
+    tempPhoneme.setFricativeSustain(lerp(p1.getFricativeSustain(), p2.getFricativeSustain(), val));  // Set fricative sustain to interpolated value
+    tempPhoneme.setFricativeRelease(lerp(p1.getFricativeRelease(), p2.getFricativeRelease(), val));  // Set fricative release to interpolated value
     return tempPhoneme;
 }
 
 float FormantSynthAudioProcessor::lerp(float a, float b, float t)
 {
-    return (a + (t*(b - a)));
+    return (a + (t*(b - a)));  // Return interpolated value
 }
 
 void FormantSynthAudioProcessor::loadButtonClicked()
 {
-    chooser = std::make_unique<juce::FileChooser>("Select Phoneme Data File...", juce::File{}, "*.xml");
+    chooser = std::make_unique<juce::FileChooser>("Select Phoneme Data File...", juce::File{}, "*.xml");  // Create file browser dialog, filter for XML files
     auto chooserFlags = juce::FileBrowserComponent::openMode
-        | juce::FileBrowserComponent::canSelectFiles;
+        | juce::FileBrowserComponent::canSelectFiles;  // File browser configuration
     
-    chooser->launchAsync(chooserFlags, [this](const juce::FileChooser& fc)
+    chooser->launchAsync(chooserFlags, [this](const juce::FileChooser& fc)  // Launch file browser window
         {
-            auto file = fc.getResult();
-            if (file != juce::File{}) {
-                auto xml = juce::parseXML(file);
-                if (xml->hasTagName("PHONEME_DATA")) {
-                    phonemeVector.clear();
-                    for (auto* phoneme : xml->getChildIterator()) {
-                        Phoneme tp;
-                        juce::String tpName = phoneme->getTagName();
-                        tp.setName(tpName.toStdString());
-                        //DBG(phoneme->getTagName());
-                        for (auto* f : phoneme->getChildIterator()) {
-                            if (f->hasTagName("F1")) {
-                                //DBG("F1 found");
-                                tp.setFrequency(0, f->getDoubleAttribute("Freq"));
+            auto file = fc.getResult();  // Store selected file in auto object
+            if (file != juce::File{}) {  // If a file has been selected
+                auto xml = juce::parseXML(file);  // Parse file into XML tree
+                if (xml->hasTagName("PHONEME_DATA")) {  // If XML file is a phoneme data file
+                    phonemeVector.clear();  // Empty phoneme vector
+                    for (auto* phoneme : xml->getChildIterator()) {  // For every child element in XML file (every phoneme)
+                        Phoneme tp;  // Temp phoneme object
+                        juce::String tpName = phoneme->getTagName();  // Get phoneme name from file
+                        tp.setName(tpName.toStdString());  // Set temp phoneme name to name from file
+                        for (auto* f : phoneme->getChildIterator()) {  // For every child element of phoneme (every formant, fricative)
+                            if (f->hasTagName("F1")) {  // If the child data corresponds to formant 1
+                                tp.setFrequency(0, f->getDoubleAttribute("Freq"));  // Set phoneme formant data to data from child
                                 tp.setBandwidth(0, f->getDoubleAttribute("Bandwidth"));
                                 tp.setGain(0, f->getDoubleAttribute("Gain"));
                             }
-                            if (f->hasTagName("F2")) {
-                                //DBG("F2 found");
-                                tp.setFrequency(1, f->getDoubleAttribute("Freq"));
+                            if (f->hasTagName("F2")) {  // If the child data corresponds to formant 2
+                                tp.setFrequency(1, f->getDoubleAttribute("Freq"));  // Set phoneme formant data to data from child
                                 tp.setBandwidth(1, f->getDoubleAttribute("Bandwidth"));
                                 tp.setGain(1, f->getDoubleAttribute("Gain"));
                             }
-                            if (f->hasTagName("F3")) {
-                                //DBG("F3 found");
-                                tp.setFrequency(2, f->getDoubleAttribute("Freq"));
+                            if (f->hasTagName("F3")) {  // If the child data corresponds to formant 3
+                                tp.setFrequency(2, f->getDoubleAttribute("Freq"));  // Set phoneme formant data to data from child
                                 tp.setBandwidth(2, f->getDoubleAttribute("Bandwidth"));
                                 tp.setGain(2, f->getDoubleAttribute("Gain"));
                             }
-                            if (f->hasTagName("F4")) {
-                                //DBG("F4 found");
-                                tp.setFrequency(3, f->getDoubleAttribute("Freq"));
+                            if (f->hasTagName("F4")) {  // If the child data corresponds to formant 4
+                                tp.setFrequency(3, f->getDoubleAttribute("Freq"));  // Set phoneme formant data to data from child
                                 tp.setBandwidth(3, f->getDoubleAttribute("Bandwidth"));
                                 tp.setGain(3, f->getDoubleAttribute("Gain"));
                             }
-                            if (f->hasTagName("F5")) {
-                                //DBG("F5 found");
-                                tp.setFrequency(4, f->getDoubleAttribute("Freq"));
+                            if (f->hasTagName("F5")) {  // If the child data corresponds to formant 5
+                                tp.setFrequency(4, f->getDoubleAttribute("Freq"));  // Set phoneme formant data to data from child
                                 tp.setBandwidth(4, f->getDoubleAttribute("Bandwidth"));
                                 tp.setGain(4, f->getDoubleAttribute("Gain"));
                             }
-                            if (f->hasTagName("FRICATIVE")) {
-                                //DBG("Fricative found");
-                                tp.setFricativeGain(f->getDoubleAttribute("Gain"));
-                                //DBG(f->getDoubleAttribute("Gain"));
-                                //DBG(tp.getFricativeGain());
+                            if (f->hasTagName("FRICATIVE")) {  // If the child data corresponds to fricative data
+                                tp.setFricativeGain(f->getDoubleAttribute("Gain"));  // Set phoneme fricative data to data from child
                                 tp.setFricativeColour(f->getDoubleAttribute("Lowcut"), f->getDoubleAttribute("Highcut"));
-                                //DBG(tp.getFricativeLow());
-                                //DBG(tp.getFricativeHigh());
                                 tp.setFricativeAttack(f->getDoubleAttribute("Attack"));
-                                //DBG(tp.getFricativeAttack());
                                 tp.setFricativeDecay(f->getDoubleAttribute("Decay"));
-                                //DBG(tp.getFricativeDecay());
                                 tp.setFricativeSustain(f->getDoubleAttribute("Sustain"));
-                                //DBG(tp.getFricativeSustain());
                                 tp.setFricativeRelease(f->getDoubleAttribute("Release"));
-                                //DBG(tp.getFricativeRelease());
                             }
-                            if (f->hasTagName("VOICED")) {
-                                tp.setFofGain(f->getDoubleAttribute("FOF_gain"));
+                            if (f->hasTagName("VOICED")) {  // If the child data corresponds to voiced data
+                                tp.setFofGain(f->getDoubleAttribute("FOF_gain"));  // Set phoneme voiced data to data from child
                                 tp.setBpGain(f->getDoubleAttribute("BP_gain"));
                             }
                         }
-                        phonemeVector.push_back(std::move(tp));
+                        phonemeVector.push_back(std::move(tp));  // Add temp phoneme to phoneme vector
                     }
                 }
                 

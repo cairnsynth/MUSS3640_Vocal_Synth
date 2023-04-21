@@ -109,12 +109,28 @@ public:
     void setStateInformation (const void* data, int sizeInBytes) override;
 
     //==============================================================================
-    // Note on/off control
-    void keyOn(int key, int velocity);
-    void keyOff(int key);
-    uintptr_t monoVoiceId = 0;
+    /* Note On/Off control */
 
-    // Parameter control functions
+    /* --keyOn(int key, int velocity)--
+    * Instantiates Faust DSP voice with pitch and velocity data from MIDI message
+    *    key = MIDI key value
+    *    velocity = MIDI velocity Value
+    */
+    void keyOn(int key, int velocity);
+
+    /* --keyOff(int key)--
+    * Sets gate to 0 for Faust DSP voice associated with given key,
+    * waits for end of envelope and destroys voice
+    *    key = MIDI key to destroy
+    */
+    void keyOff(int key);
+
+    uintptr_t monoVoiceId = 0;  // Variable to store voice ID of mono voice
+
+    /* 
+    DSP parameter setters
+    Sets Faust DSP parameter to value of corresponding value tree parameter
+    */
     void setBpSourceWave();
     void setBpSourcePw();
     void setBpSourcePressure();
@@ -167,47 +183,104 @@ public:
 
     void setVowelNumber();
     void setSkirtWidth();
+
+    /* --addPhonemeToVector(Phoneme p)--
+    * Adds phoneme to end of phonemeVector
+    *   p = phoneme to add
+    */
     void addPhonemeToVector(Phoneme p);
-    void setPhoneme(std::vector<Phoneme> pVector, float interpolationVal);
+
+    /* --setPhoneme(std::vector<Phoneme> pVector, float interpolationVal)--
+    * Sets DSP formant frequencies, gains, and bandwidths to values
+    * interpolated from pVector
+    *   pVector = vector of phonemes from which to get values
+    *   interpolationVal = distance through vector to interpolate
+    */
+    void setPhoneme(std::vector<Phoneme> pVector, float val);
+
+    /* --interpolatePhonemes(Phoneme p1, Phoneme p2, float val)-- 
+    * Returns Phoneme object with member values interpolated from p1 and p2
+    *   p1 = starting phoneme
+    *   p2 = ending phoneme
+    *   val = interpolation point (0.0f - 1.0f)
+    */
     Phoneme interpolatePhonemes(Phoneme p1, Phoneme p2, float val);
+
+    /* --lerp(float a, floatb, float t)--
+    * Basic linear interpolation function
+    * Used in interpolatePhonemes()
+    *   a = starting value
+    *   b = ending value
+    *   t = interpolation point
+    * 
+    * REFERENCE:
+    *   cppreference.com, "std::lerp",
+    *   <https://en.cppreference.com/w/cpp/numeric/lerp>
+    *   [accessed 21/04/2023]
+    */
     float lerp(float a, float b, float t);
 
-    float getCpuLoad();
-
+    /* --loadButtonClicked()--
+    * Function handles loading XML files containing phonemes into
+    * phoneme vector
+    * 
+    * REFERENCE: (for file browser dialog)
+    *   Juce, "Tutorial: Build an audio player",
+    *   <https://docs.juce.com/master/tutorial_playing_sound_files.html#tutorial_playing_sound_files_opening_a_file>
+    *   [accessed 21/04/2023]
+    */
     void loadButtonClicked();
-    std::unique_ptr<juce::FileChooser> chooser;
-    std::unique_ptr<juce::XmlDocument> xmlFile;
+    std::unique_ptr<juce::FileChooser> chooser;  // File Explorer dialog
+    std::unique_ptr<juce::XmlDocument> xmlFile;  // XML file container to load in to
 
-    // Value Tree
+    /* --Audio Processor Value Tree State--
+    * Stores values of each parameter in the plugin processor allowing DAW 
+    * control/automation
+    */
     juce::AudioProcessorValueTreeState apvts;
+
+    /* --createParameterLayout()--
+    * Creates parameter objects for each parameter, 
+    * defining range and intial value
+    */
     juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
+
+    /* --initialisePhonemes()-- 
+    * Loads default phoneme values into phoneme vector
+    * Hard coded to avoid error in the event of missing XML files
+    */
     void initialisePhonemes();
-    // File Parsing
-    std::vector<Phoneme> phonemeVector;
     
-    Phoneme interpolatedPhoneme;
+    std::vector<Phoneme> phonemeVector;  // Vector stores loaded phoneme objects
+    
+    Phoneme interpolatedPhoneme;  // 'Current' phoneme
 
-    juce::MidiKeyboardState keyboardState;
+    juce::MidiKeyboardState keyboardState;  // GUI keyboard state
 
-    MidiQueue midiQueue;
-    MidiListModel midiModel;
-
-    juce::String midiInfo;
-
-    int noteOnFlag = 0;
-    int noteOffFlag = 0;
+    MidiQueue midiQueue;  // Queue of incomming MIDI messages
+    MidiListModel midiModel;  // List of MIDI messages to be acted on by plugin
 
 private:
-    DspFaust dsp;  // Main DSP object
+    DspFaust dsp;  // Main Faust DSP object
+
+    /* --timerCallBack()-- 
+    * Function called when timer triggers
+    * Updates midiQueue, midiModel with new external MIDI messages
+    * 
+    * REFERENCE:
+    *   tpoole, "MidiLoggerPluginDemo.h", 
+    *   <https://github.com/juce-framework/JUCE/blob/master/examples/Plugins/MidiLoggerPluginDemo.h>
+    *   [accessed 21/04/2023]
+    */
     void timerCallback() override;
 
+    /* --processMidi()-- 
+    * Processes external MIDI inputs, creating DSP voices for new key presses
+    * Prevents creation of multiple voices on the same key, which may lead to
+    * errors on the destruction of DSP voices
+    */
     void processMidi();
-    std::vector<int> voiceKeys;
-    //MidiTable midiTable;
-
-    audio* driver;
-    FaustPolyEngine* faustObject;
-    float** outputs;
+    std::vector<int> voiceKeys;  // Stores currently active keys
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (FormantSynthAudioProcessor)
