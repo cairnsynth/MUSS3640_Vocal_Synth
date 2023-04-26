@@ -832,8 +832,6 @@ void FormantSynthAudioProcessorEditor::resized()
     f5BandwidthSlider.setBounds(f5Area.removeFromTop(f5Area.getHeight() / 2).reduced(objectBorder));
     f5GainSlider.setBounds(f5Area.reduced(objectBorder));
 
-    //table.setBounds(formantArea.reduced(objectBorder));
-
     envelopeHeaderArea.removeFromTop(10);
     voiceEnvelopeLabel.setBounds(envelopeHeaderArea.removeFromLeft(envelopeHeaderArea.getWidth() / 2));
     fricativeEnvelopeLabel.setBounds(envelopeHeaderArea);

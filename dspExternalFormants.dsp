@@ -133,9 +133,9 @@ with {
 bpBank = _ <: _bp1, _bp2, _bp3, _bp4, _bp5 :> _ <: _,_
 with {
     _bp1 = bpFormant(f1Freq, f1BW, f1Gain);
-    _bp2 = bpFormant(f2Freq, f2BW, f2Gain);
+    _bp2 = -bpFormant(f2Freq, f2BW, f2Gain);
     _bp3 = bpFormant(f3Freq, f3BW, f3Gain);
-    _bp4 = bpFormant(f4Freq, f4BW, f4Gain);
+    _bp4 = -bpFormant(f4Freq, f4BW, f4Gain);
     _bp5 = bpFormant(f5Freq, f5BW, f5Gain);
 };
 
@@ -151,9 +151,12 @@ fricativeChain = fricativeSource : bpBank <: *(fricativeGain)*(fricativeEnvelope
 
 phasor(freq) = (+(freq/ma.SR) ~ ma.frac);
 
-rosenbergModel(freq, Av, T0, Te, a0, a1) = ba.if(rCond2_(t_), rosenberg1_(-t_), rosenberg2_(-t_)) * rCond3_(t_)
+rosenbergModel(freq, Av, T0, Te, a0, a1) = ba.if(rCond2_(t_), 
+                                                rosenberg1_(-t_), 
+                                                rosenberg2_(-t_)) * rCond3_(t_)
 with {
-    t_ = (phasor(freq)*pressureSlide) + (no.noise*noiseSlide : fi.highpass(1, 22000));
+    t_ = (phasor(freq)*pressureSlide) + 
+            (no.noise*noiseSlide : fi.highpass(1, 22000));
     Tp_ = a0*T0;
     Tc_ = a1*T0;
     Te_ = Te;

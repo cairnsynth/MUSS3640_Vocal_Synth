@@ -5,7 +5,8 @@
     Created: 15 Apr 2023 4:14:34pm
     Author:  Luke Coles
 
-    Class to handle external MIDI input from DAW
+    Classes to handle external MIDI input from DAW
+
     REFERENCE:
         tpoole, "MidiLoggerPluginDemo.h", 
         <https://github.com/juce-framework/JUCE/blob/master/examples/Plugins/MidiLoggerPluginDemo.h>
@@ -17,15 +18,28 @@
 #pragma once
 #include <JuceHeader.h>
 #include <iterator>
+
 class MidiQueue
 {
 public:
+    /*
+    push(const juce::MidiBuffer& buffer)
+
+    Push MIDI messages from buffer onto queue
+        buffer = buffer to push from
+    */
     void push(const juce::MidiBuffer& buffer)
     {
         for (const auto metadata : buffer) {
             fifo.write(1).forEach([&](int dest) {messages[(size_t)dest] = metadata.getMessage(); });
         }
     }
+    /*
+    pop(OutputIt out)
+
+    Pop MIDI messages from queue
+        out = Destination of popped messages
+    */
     template<typename OutputIt>
     void pop(OutputIt out)
     {
@@ -34,7 +48,7 @@ public:
 
 private:
     static constexpr auto queueSize = 1 << 14;
-    juce::AbstractFifo fifo{ queueSize };
+    juce::AbstractFifo fifo { queueSize };
     std::vector<juce::MidiMessage> messages = std::vector<juce::MidiMessage>(queueSize);
 
 };
