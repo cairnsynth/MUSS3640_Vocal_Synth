@@ -31,8 +31,6 @@ alpha1 = alpha1Slide + jitter;          //Decreasing slope
 
 phasor(freq) = (+(freq/ma.SR) ~ ma.frac);
 
-sinewave = sin(phasor(freq)*2*ma.PI);
-
 freq = inFreq + (os.osc(inFreq*ihRatioSlide)*inharmonicSlide) + (os.osc(inFreq*ihRatioSlide*1.5)*inharmonicSlide);
 
 /*
