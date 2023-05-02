@@ -107,7 +107,15 @@ vibratoSignal = os.osc(vibratoFreq)*vibratoEnvelope;
 fofSource(freq_) = os.lf_imptrain(freq_);  // Low frequency impulse train source
 
 // FOF Formant Object
-//  Single FOF equation, or formant
+/*  Single FOF equation, or formant
+*   REF:
+*      fofSmooth (physmodels.lib)
+*
+*      R. Michon, et al
+*
+*      <https://github.com/grame-cncm/faustlibraries/blob/master/physmodels.lib>
+*      [accessed 02/05/2023]
+*/
 fofFormant(freq_, bw_, gain_) = pm.fofCycle(_freq, _bw, _sw, _gain, 6)
 with {
     _freq = freq_;
@@ -138,7 +146,7 @@ with {
 fofGainComp = 25;
 
 // FOF Process Block
-//  Contains unison detune implementation, unison amount is hardcoded to 0
+//  Contains unison detune implementation, unison amount is hard-coded to 0
 //  Compressor added after fof bank for amplitude normalisation
 fofChain = par(i, nUnison,
         (fofSource(sourceFreq + ((unisonDetune/nUnison) * i)) <: fofBank : 
