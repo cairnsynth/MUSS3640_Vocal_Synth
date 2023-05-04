@@ -11,6 +11,8 @@
     <F3 Freq="2250" Bandwidth="110" Gain="0.1259" />
     <F4 Freq="2450" Bandwidth="120" Gain="0.1259" />
     <F5 Freq="2750" Bandwidth="130" Gain="0.01" />
+    <!--Gain values for the synthesis models are stored in the VOICED tag-->
+    <VOICED FOF_gain="1.0" BP_gain="1.0" />
     <!--Fricative data is stored as a child-element to the phoneme-->
     <FRICATIVE Gain="0" Lowcut="20.0" Highcut="20000.0" Attack="0.1" Decay="0.5" Sustain="0.5" Release="1.0" />
   </_Phoneme_>
